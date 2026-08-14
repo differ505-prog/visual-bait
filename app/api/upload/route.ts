@@ -36,16 +36,26 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Check if Cloudinary is configured
-    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+    const hasCloudinary = !!(process.env.CLOUDINARY_URL || (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY));
+    console.log("[upload] Cloudinary configured:", hasCloudinary);
+    console.log("[upload] CLOUDINARY_URL:", process.env.CLOUDINARY_URL ? "set" : "not set");
+    console.log("[upload] CLOUDINARY_CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME || "not set");
+    console.log("[upload] CLOUDINARY_API_KEY:", process.env.CLOUDINARY_API_KEY || "not set");
+
+    if (hasCloudinary) {
       // Upload to Cloudinary via base64
       const b64 = buffer.toString("base64");
       const dataUri = `data:${file.type};base64,${b64}`;
+
+      console.log("[upload] Uploading to Cloudinary, file size:", buffer.length);
 
       const result = await cloudinary.uploader.upload(dataUri, {
         folder: "visual-bait",
         resource_type: "image",
         transformation: [{ quality: "auto", fetch_format: "auto" }],
       });
+
+      console.log("[upload] Cloudinary result:", result.secure_url);
 
       return NextResponse.json({
         url: result.secure_url,
@@ -56,6 +66,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Fallback: save locally for development
+    console.log("[upload] Falling back to local storage");
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
 
@@ -64,6 +75,7 @@ export async function POST(req: NextRequest) {
     const filepath = path.join(uploadDir, filename);
 
     await writeFile(filepath, buffer);
+    console.log("[upload] Saved locally:", filename);
 
     return NextResponse.json({
       url: `/uploads/${filename}`,
