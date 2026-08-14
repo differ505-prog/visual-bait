@@ -99,6 +99,14 @@ export function HeroSection() {
         }}
       />
 
+      {/* 底部平滑過渡遮罩 */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, #0a0806 0%, transparent 100%)",
+        }}
+      />
+
       {/* 內容區塊 - 左下角不對稱佈局 */}
       <motion.div
         className="relative z-10 flex flex-col justify-end"
