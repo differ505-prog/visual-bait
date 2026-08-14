@@ -145,12 +145,19 @@ export async function createTenant(slug: string, data: Partial<TenantConfig>): P
     pricing: data.pricing ?? { eyebrow: "", headline: "", plans: [] },
     designDials: data.designDials ?? { VARIANCE: 8, MOTION_INTENSITY: 7, DENSITY: 3 },
     acquisitionConfig: data.acquisitionConfig,
+    telegramBotToken: data.telegramBotToken,
+    telegramChatId: data.telegramChatId,
     expiresAt: data.expiresAt ?? "",
     active: data.active ?? true,
     createdAt: now,
   };
 
-  await client.hset(`tenant:${slug}`, tenant as unknown as Record<string, unknown>);
+  const dataToStore = Object.entries(tenant).reduce((acc, [k, v]) => {
+    if (v !== undefined) acc[k] = v;
+    return acc;
+  }, {} as Record<string, unknown>);
+
+  await client.hset(`tenant:${slug}`, dataToStore);
   await client.zadd("tenant-index", { score: Date.now(), member: slug });
   return tenant;
 }
@@ -163,7 +170,13 @@ export async function updateTenant(slug: string, data: Partial<TenantConfig>): P
   if (!existing) throw new Error(`Tenant "${slug}" 不存在`);
 
   const updated = { ...existing, ...data, slug };
-  await client.hset(`tenant:${slug}`, updated as unknown as Record<string, unknown>);
+  
+  const dataToStore = Object.entries(updated).reduce((acc, [k, v]) => {
+    if (v !== undefined) acc[k] = v;
+    return acc;
+  }, {} as Record<string, unknown>);
+
+  await client.hset(`tenant:${slug}`, dataToStore);
   return updated;
 }
 

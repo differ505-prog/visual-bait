@@ -345,7 +345,15 @@ export default function AdminPage() {
         });
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        console.error("Failed to parse response:", e);
+        showMessage("error", `伺服器無回應或發生錯誤 (HTTP ${res.status})`);
+        return;
+      }
+
       if (!res.ok) {
         showMessage("error", `儲存失敗：${data.error ?? "請檢查終端機錯誤訊息"}`);
       } else {
@@ -353,7 +361,8 @@ export default function AdminPage() {
         setShowForm(false);
         fetchTenants();
       }
-    } catch {
+    } catch (e) {
+      console.error("Save error:", e);
       showMessage("error", "網路錯誤，請稍後再試");
     } finally {
       setSaving(false);

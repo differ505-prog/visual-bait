@@ -12,8 +12,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  let body: any;
   try {
-    const body = await req.json();
+    body = await req.json();
     const { slug, ...data } = body;
 
     if (!slug || typeof slug !== "string") {
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
     }
 
     const tenant = await createTenant(cleanSlug, {
-      brandName: data.brandName ?? data.brandName ?? "我的民宿",
+      brandName: data.brandName ?? "我的民宿",
       heroImageUrl: data.heroImageUrl ?? "",
       primaryColor: data.primaryColor ?? "#8B7355",
       slogan: data.slogan ?? "",
@@ -54,10 +55,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, tenant }, { status: 201 });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("[api/tenants] POST error:", msg);
+    console.error("[api/tenants] POST error payload:", JSON.stringify(body).substring(0, 200));
+    console.error("[api/tenants] POST error stack:", err instanceof Error ? err.stack : err);
     if (msg.includes("已存在")) {
       return NextResponse.json({ error: msg }, { status: 409 });
     }
-    return NextResponse.json({ error: "建立失敗" }, { status: 500 });
+    return NextResponse.json({ error: "建立失敗：" + msg }, { status: 500 });
   }
 }
