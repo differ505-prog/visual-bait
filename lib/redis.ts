@@ -64,6 +64,13 @@ export interface TenantConfig {
     MOTION_INTENSITY: number;
     DENSITY: number;
   };
+  acquisitionConfig?: {
+    templateBadge: string;
+    primaryCTA: string;
+    secondaryCTA: string;
+    copyright: string;
+    techStack: string[];
+  };
   telegramBotToken?: string;
   telegramChatId?: string;
   expiresAt: string; // ISO date string, empty = never expires
@@ -137,6 +144,7 @@ export async function createTenant(slug: string, data: Partial<TenantConfig>): P
     story: data.story ?? { eyebrow: "", headline: "", imageUrl: "" },
     pricing: data.pricing ?? { eyebrow: "", headline: "", plans: [] },
     designDials: data.designDials ?? { VARIANCE: 8, MOTION_INTENSITY: 7, DENSITY: 3 },
+    acquisitionConfig: data.acquisitionConfig,
     expiresAt: data.expiresAt ?? "",
     active: data.active ?? true,
     createdAt: now,
