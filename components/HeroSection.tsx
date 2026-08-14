@@ -55,7 +55,7 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative w-full"
+      className="relative w-full overflow-hidden"
       style={{ minHeight: "100dvh" }}
       id="hero"
     >
@@ -96,6 +96,15 @@ export function HeroSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `radial-gradient(ellipse at 30% 40%, ${primaryColor}18 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(255,235,200,0.05) 0%, transparent 40%)`,
+        }}
+      />
+
+      
+      {/* 底部平滑過渡遮罩 (防禦性編程) */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-[40vh] pointer-events-none z-0"
+        style={{
+          background: "linear-gradient(to top, #0a0806 0%, transparent 100%)",
         }}
       />
 
