@@ -4,9 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Campaign } from "@/lib/redis";
 import { Plus, RefreshCw, Trash2, X, Check, Link2, Copy } from "lucide-react";
 
-function shortCode(id: string) {
-  return id.split("-").pop() ?? id;
-}
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -24,10 +21,10 @@ export default function CampaignsPage() {
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
-  const fetch = useCallback(async () => {
+  const fetchCampaigns = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/campaigns");
+      const res = await window.fetch("/api/campaigns");
       const data = await res.json();
       setCampaigns(data.campaigns ?? []);
     } catch {
@@ -37,7 +34,7 @@ export default function CampaignsPage() {
     }
   }, []);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => { fetchCampaigns(); }, [fetchCampaigns]);
 
   const showMsg = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
@@ -51,7 +48,7 @@ export default function CampaignsPage() {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/campaigns", {
+      const res = await window.fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: formSlug, name: formName, expiresAt: formExpiresAt }),
@@ -63,7 +60,7 @@ export default function CampaignsPage() {
         showMsg("success", "活動已建立");
         setShowForm(false);
         setFormSlug(""); setFormName(""); setFormExpiresAt("");
-        fetch();
+        fetchCampaigns();
       }
     } catch {
       showMsg("error", "網路錯誤");
@@ -76,9 +73,9 @@ export default function CampaignsPage() {
     if (!confirm("確定刪除此活動？")) return;
     setDeletingId(id);
     try {
-      await fetch(`/api/campaigns?id=${id}`, { method: "DELETE" });
+      await window.fetch(`/api/campaigns?id=${id}`, { method: "DELETE" });
       showMsg("success", "已刪除");
-      fetch();
+      fetchCampaigns();
     } catch {
       showMsg("error", "刪除失敗");
     } finally {
@@ -103,7 +100,7 @@ export default function CampaignsPage() {
           <p className="text-sm text-gray-500 mt-0.5">建立追蹤連結，量化廣告成效</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={fetch} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+          <button onClick={fetchCampaigns} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors">
             <RefreshCw size={14} />
             重新整理
           </button>
