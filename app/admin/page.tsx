@@ -312,6 +312,8 @@ export default function AdminPage() {
   };
 
   const handleSave = async () => {
+    console.log("[admin] handleSave: form.heroImageUrl =", form.heroImageUrl ?? "(空)");
+    console.log("[admin] handleSave: full payload heroImageUrl =", form.heroImageUrl ? "有值" : "(空)");
     setSaving(true);
     try {
       const payload: Record<string, unknown> = {};
@@ -421,6 +423,36 @@ export default function AdminPage() {
           </button>
         </div>
       </div>
+
+      {/* Debug Panel */}
+      {showForm && (
+        <div className="mb-6 p-4 bg-gray-900 text-gray-100 rounded-xl text-xs font-mono overflow-x-auto">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-400">🐛 Debug Panel</span>
+          </div>
+          <div className="space-y-1">
+            <div>
+              <span className="text-gray-500">form.heroImageUrl: </span>
+              <span className={form.heroImageUrl ? "text-green-400" : "text-red-400"}>
+                {form.heroImageUrl ? form.heroImageUrl : "(空)"}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-500">slug: </span>
+              <span className="text-blue-400">{editingSlug ?? "(新建立)"}</span>
+            </div>
+            <div>
+              <span className="text-gray-500">上傳後的 URL 是否有值？</span>
+              <span className={form.heroImageUrl ? "text-green-400" : "text-red-400"}>
+                {form.heroImageUrl ? "✅ 有值" : "❌ 無值（需上傳圖片）"}
+              </span>
+            </div>
+            <div className="pt-1 border-t border-gray-700 text-gray-500">
+              💡 提示：上傳圖片後，URL 會顯示在上方。上傳後請滾動到主視覺圖片區確認 URL 有內容，再點「儲存變更」。
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Message */}
       {message && (

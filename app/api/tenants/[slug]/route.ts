@@ -27,11 +27,19 @@ export async function PUT(
     const body = await req.json();
     const { ...data } = body;
 
+    console.log(`[api/tenants/[slug]] PUT /${slug}`, {
+      heroImageUrl: data.heroImageUrl ?? "(未提供)",
+      brandName: data.brandName ?? "(未提供)",
+      keys: Object.keys(data),
+    });
+
     // Merge with existing tenant so missing fields keep their values
     const existing = await getTenant(slug);
     if (!existing) {
       return NextResponse.json({ error: "民宿不存在" }, { status: 404 });
     }
+
+    console.log(`[api/tenants/[slug]] existing heroImageUrl:`, existing.heroImageUrl ?? "(空)");
 
     // Fields the admin form sends as "only if filled"
     const merged = {
@@ -44,7 +52,12 @@ export async function PUT(
       pricing: existing.pricing,
     };
 
+    console.log(`[api/tenants/[slug]] merged heroImageUrl:`, merged.heroImageUrl ?? "(空)");
+
     const tenant = await updateTenant(slug, merged);
+
+    console.log(`[api/tenants/[slug]] saved heroImageUrl:`, tenant.heroImageUrl ?? "(空)");
+
     return NextResponse.json({ success: true, tenant });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

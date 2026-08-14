@@ -176,6 +176,8 @@ export async function updateTenant(slug: string, data: Partial<TenantConfig>): P
     return acc;
   }, {} as Record<string, unknown>);
 
+  console.log(`[redis] updateTenant /${slug}: heroImageUrl =`, updated.heroImageUrl ?? "(空)");
+
   await client.hset(`tenant:${slug}`, dataToStore);
   return updated;
 }
