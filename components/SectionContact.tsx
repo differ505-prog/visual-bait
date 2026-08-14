@@ -4,40 +4,43 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { brandConfig, designDials } from "@/config/site";
 import { ScrollReveal } from "./ScrollReveal";
-import { PaperPlaneTilt, Phone, Envelope, MapPin } from "@phosphor-icons/react";
+import { Mail, MessageCircle } from "lucide-react";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
 interface FormData {
+  innName: string;
   name: string;
   phone: string;
+  lineId: string;
   email: string;
   message: string;
 }
 
 export function SectionContact() {
-  const { primaryColor, phone, email, address } = brandConfig;
+  const { primaryColor, email, line } = brandConfig;
   const { MOTION_INTENSITY } = designDials;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;
 
   const [formData, setFormData] = useState<FormData>({
+    innName: "",
     name: "",
     phone: "",
+    lineId: "",
     email: "",
     message: "",
   });
   const [formState, setFormState] = useState<FormState>("idle");
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const validate = (): boolean => {
     const newErrors: Partial<FormData> = {};
+    if (!formData.innName.trim()) newErrors.innName = "請填寫民宿名稱";
     if (!formData.name.trim()) newErrors.name = "請填寫姓名";
-    if (!formData.phone.trim()) newErrors.phone = "請填寫電話";
-    else if (!/^[0-9\-\s\+]{8,}$/.test(formData.phone))
-      newErrors.phone = "電話格式有誤";
-    if (!formData.email.trim()) newErrors.email = "請填寫 email";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+    if (!formData.phone.trim()) newErrors.phone = "請填寫聯絡電話";
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = "email 格式有誤";
     if (!formData.message.trim()) newErrors.message = "請填寫需求";
     setErrors(newErrors);
@@ -49,10 +52,12 @@ export function SectionContact() {
     if (!validate()) return;
 
     setFormState("submitting");
+    setFeedbackMessage("");
 
     // Simulate submission
     await new Promise((r) => setTimeout(r, 1500));
     setFormState("success");
+    setFeedbackMessage("已收到你的訊息，我們會在 1-2 個工作天內回覆你");
   };
 
   const handleChange = (
@@ -68,7 +73,7 @@ export function SectionContact() {
   return (
     <section id="contact" className="w-full py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-16 lg:gap-20">
           {/* Left: Info */}
           <ScrollReveal direction="left">
             <p
@@ -84,32 +89,84 @@ export function SectionContact() {
                 letterSpacing: "0.05em",
               }}
             >
-              聊聊你的需求
+              想讓民宿官網真正能接單，從這裡開始
             </h2>
-            <p className="text-white/50 text-base leading-relaxed max-w-[42ch] mb-12">
-              不確定哪個方案適合？留下聯絡方式，我們會在一個工作日內回覆，根據你的民宿規模與風格推薦最合適的方案。
+            <p className="text-white/50 text-base leading-relaxed max-w-[44ch] mb-10">
+              把現況或需求丟過來，聊聊就知道方向。我們會在 1-2 個工作天內回覆你，提供初步建議
             </p>
 
-            {/* Contact details */}
-            <div className="flex flex-col gap-5">
-              <ContactItem
-                icon={<Phone size={18} weight="light" />}
-                label="電話"
-                value={phone}
-                primaryColor={primaryColor}
-              />
-              <ContactItem
-                icon={<Envelope size={18} weight="light" />}
-                label="Email"
-                value={email}
-                primaryColor={primaryColor}
-              />
-              <ContactItem
-                icon={<MapPin size={18} weight="light" />}
-                label="地址"
-                value={address}
-                primaryColor={primaryColor}
-              />
+            {/* LINE block */}
+            <div
+              className="p-6 rounded-[28px]"
+              style={{ backgroundColor: `${primaryColor}10`, border: `1px solid ${primaryColor}30` }}
+            >
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="max-w-xs">
+                  <p className="inline-flex items-center gap-2 text-sm font-medium text-white/50 mb-3">
+                    <MessageCircle size={16} strokeWidth={1.5} />
+                    LINE 官方帳號
+                  </p>
+                  <p
+                    className="text-xl text-white mb-3"
+                    style={{ fontFamily: "var(--font-serif)" }}
+                  >
+                    想更快開始，直接加 LINE
+                  </p>
+                  <p className="text-white/50 text-sm leading-relaxed">
+                    評估需求方向，確認合作節奏
+                  </p>
+                  <div className="mt-5">
+                    <a
+                      href={line}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-white px-6 py-3 rounded-full transition hover:brightness-110"
+                      style={{ backgroundColor: "#06C755" }}
+                    >
+                      加 LINE 聊聊需求
+                      <MessageCircle size={16} strokeWidth={1.5} />
+                    </a>
+                  </div>
+                </div>
+
+                <a
+                  href={line}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mx-auto block w-full max-w-[180px] rounded-[24px] p-4 text-center transition hover:brightness-110"
+                  style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  <img
+                    src="/line-qr.png"
+                    alt="築時數位 LINE 官方帳號 QR Code"
+                    width={180}
+                    height={180}
+                    className="mx-auto h-auto w-full"
+                  />
+                  <p className="mt-3 text-[10px] uppercase tracking-[0.22em] text-white/30">
+                    掃描加入
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            {/* Phone + Email */}
+            <div className="mt-6 flex flex-col gap-3">
+              <a
+                href="tel:0988959922"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white/60 transition hover:text-white"
+                style={{ color: primaryColor }}
+              >
+                0988-959-922
+                <span className="text-white/20 text-xs font-normal">（也可直接致電）</span>
+              </a>
+              <a
+                href={`mailto:${email}`}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white/60 transition hover:text-white"
+              >
+                {email}
+                <Mail size={16} strokeWidth={1.5} />
+              </a>
             </div>
           </ScrollReveal>
 
@@ -117,10 +174,10 @@ export function SectionContact() {
           <ScrollReveal direction="right" delay={0.1}>
             {formState === "success" ? (
               <motion.div
-                className="flex flex-col items-center justify-center text-center p-12 border border-white/10"
+                className="flex flex-col items-center justify-center text-center p-12 rounded-[32px]"
                 style={{
-                  backgroundColor: `${primaryColor}0d`,
-                  borderColor: `${primaryColor}30`,
+                  backgroundColor: `${primaryColor}10`,
+                  border: `1px solid ${primaryColor}30`,
                 }}
                 initial={shouldAnimate ? { opacity: 0, scale: 0.96 } : false}
                 animate={{ opacity: 1, scale: 1 }}
@@ -130,32 +187,44 @@ export function SectionContact() {
                   className="text-4xl mb-4"
                   style={{ color: primaryColor }}
                 >
-                  <PaperPlaneTilt size={48} weight="light" />
+                  ✓
                 </div>
                 <h3
                   className="text-xl text-white mb-2"
                   style={{ fontFamily: "var(--font-serif)" }}
                 >
-                  已收到你的訊息
+                  {feedbackMessage}
                 </h3>
-                <p className="text-white/50 text-sm">
-                  我們會在 1 個工作日內聯繫你，請留意手機或 email。
-                </p>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                {/* Name */}
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-5 p-8 rounded-[32px]"
+                style={{
+                  backgroundColor: `${primaryColor}0d`,
+                  border: `1px solid ${primaryColor}20`,
+                }}
+              >
+                <FormField
+                  label="民宿名稱"
+                  name="innName"
+                  placeholder="例：花蓮山嵐民宿"
+                  value={formData.innName}
+                  error={errors.innName}
+                  onChange={handleChange}
+                  required
+                />
+
                 <FormField
                   label="姓名"
                   name="name"
-                  placeholder="王小明"
+                  placeholder="請輸入你的姓名"
                   value={formData.name}
                   error={errors.name}
                   onChange={handleChange}
-                  primaryColor={primaryColor}
+                  required
                 />
 
-                {/* Phone */}
                 <FormField
                   label="聯絡電話"
                   name="phone"
@@ -163,34 +232,42 @@ export function SectionContact() {
                   value={formData.phone}
                   error={errors.phone}
                   onChange={handleChange}
-                  primaryColor={primaryColor}
+                  required
                 />
 
-                {/* Email */}
+                <FormField
+                  label="LINE ID"
+                  name="lineId"
+                  placeholder="@your.line.id"
+                  value={formData.lineId}
+                  error={errors.lineId}
+                  onChange={handleChange}
+                />
+
                 <FormField
                   label="Email"
                   name="email"
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder="you@company.com"
                   value={formData.email}
                   error={errors.email}
                   onChange={handleChange}
-                  primaryColor={primaryColor}
                 />
 
-                {/* Message */}
                 <div className="flex flex-col gap-2">
                   <label className="text-xs uppercase tracking-widest text-white/40">
-                    你的需求
+                    需求描述 <span className="text-red-400/50">*</span>
                   </label>
                   <textarea
                     name="message"
-                    rows={4}
-                    placeholder="民宿地點、房型數量、想要的風格..."
+                    rows={5}
+                    placeholder="請描述你的民宿現況與需求"
                     value={formData.message}
                     onChange={handleChange}
-                    className={`w-full bg-transparent border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none resize-none transition-colors duration-300 ${
-                      errors.message ? "border-red-400/60" : "border-white/15 focus:border-white/40"
+                    className={`w-full border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none resize-none transition-colors duration-300 rounded-[20px] ${
+                      errors.message
+                        ? "border-red-400/60 bg-white/5"
+                        : "border-white/15 focus:border-white/40 bg-white/5"
                     }`}
                   />
                   {errors.message && (
@@ -198,10 +275,18 @@ export function SectionContact() {
                   )}
                 </div>
 
-                {/* Submit */}
+                {formState === "error" && feedbackMessage ? (
+                  <p
+                    className="rounded-[20px] px-4 py-3 text-sm border border-red-400/30 bg-red-50/5 text-red-400"
+                    role="alert"
+                  >
+                    {feedbackMessage}
+                  </p>
+                ) : null}
+
                 <motion.button
                   type="submit"
-                  className="mt-2 py-4 text-xs tracking-widest uppercase text-white cursor-pointer flex items-center justify-center gap-2 transition-all duration-300"
+                  className="mt-2 py-4 text-sm font-semibold text-white rounded-full cursor-pointer flex items-center justify-center gap-2 transition-all duration-300"
                   style={{ backgroundColor: primaryColor }}
                   disabled={formState === "submitting"}
                   whileHover={shouldAnimate ? { scale: 1.02 } : {}}
@@ -209,12 +294,12 @@ export function SectionContact() {
                 >
                   {formState === "submitting" ? (
                     <>
-                      <span className="animate-pulse">傳送中...</span>
+                      <span className="animate-pulse">送出中...</span>
                     </>
                   ) : (
                     <>
-                      送出諮詢
-                      <PaperPlaneTilt size={16} weight="regular" />
+                      送出需求
+                      →
                     </>
                   )}
                 </motion.button>
@@ -235,7 +320,7 @@ function FormField({
   value,
   error,
   onChange,
-  primaryColor,
+  required,
 }: {
   label: string;
   name: string;
@@ -244,12 +329,12 @@ function FormField({
   value: string;
   error?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  primaryColor: string;
+  required?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-xs uppercase tracking-widest text-white/40">
-        {label}
+        {label} {required && <span className="text-red-400/50">*</span>}
       </label>
       <input
         type={type}
@@ -257,35 +342,11 @@ function FormField({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`w-full bg-transparent border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none transition-colors duration-300 ${
+        className={`w-full border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none transition-colors duration-300 rounded-[20px] bg-white/5 ${
           error ? "border-red-400/60" : "border-white/15 focus:border-white/40"
         }`}
       />
       {error && <p className="text-red-400/80 text-xs">{error}</p>}
-    </div>
-  );
-}
-
-function ContactItem({
-  icon,
-  label,
-  value,
-  primaryColor,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  primaryColor: string;
-}) {
-  return (
-    <div className="flex items-start gap-4">
-      <div style={{ color: primaryColor }}>{icon}</div>
-      <div>
-        <p className="text-white/30 text-[11px] uppercase tracking-widest mb-0.5">
-          {label}
-        </p>
-        <p className="text-white/80 text-sm">{value}</p>
-      </div>
     </div>
   );
 }

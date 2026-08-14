@@ -116,18 +116,32 @@ function RoomCard({
           height: large
             ? "clamp(320px, 55vh, 520px)"
             : "clamp(220px, 30vh, 340px)",
+          backgroundColor: "#1a1614",
         }}
       >
-        <motion.img
-          src={room.imageUrl}
-          alt={room.name}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          initial={shouldAnimate ? { scale: 1.06 } : false}
-          animate={{ scale: 1 }}
-          whileHover={shouldAnimate ? { scale: 1.04 } : {}}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const }}
-        />
+        {room.imageUrl ? (
+          <motion.img
+            src={room.imageUrl}
+            alt={room.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            initial={shouldAnimate ? { scale: 1.06 } : false}
+            animate={{ scale: 1 }}
+            whileHover={shouldAnimate ? { scale: 1.04 } : {}}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const }}
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            <span className="text-white/10 text-[10px] tracking-widest uppercase">
+              示意圖
+            </span>
+          </div>
+        )}
 
         {/* Tag */}
         <span

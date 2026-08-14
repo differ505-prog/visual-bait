@@ -27,6 +27,18 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Scroll lock when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
   return (
     <>
       <motion.nav
@@ -108,7 +120,7 @@ export function Navigation() {
 
         {/* Mobile hamburger */}
         <button
-          className="lg:hidden p-2 text-white/80"
+          className="lg:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-white/80"
           onClick={() => setMobileOpen(true)}
           aria-label="開啟選單"
         >
@@ -133,7 +145,7 @@ export function Navigation() {
               </span>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-2 text-white/70"
+                className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-white/70"
                 aria-label="關閉選單"
               >
                 <X size={22} weight="light" />

@@ -28,16 +28,16 @@ export const brandConfig = {
   slogan: "在山海之間，遇見回家的感覺",
 
   /** 聯絡電話 */
-  phone: "0900-123-456",
+  phone: "",
 
   /** 電子郵件 */
-  email: "hello@qingjing.com",
+  email: "hello.arrivestudio@gmail.com",
 
   /** LINE 連結 */
-  line: "https://line.me/ti/p/~qingjing",
+  line: "https://lin.ee/uh4z4dL",
 
   /** 民宿地址 */
-  address: "花蓮縣壽豐鄉霧山村霧山巷88號",
+  address: "",
 
   /** 房型資料 */
   rooms: [
@@ -48,8 +48,7 @@ export const brandConfig = {
         "推開窗，晨霧在林間緩緩流動。25 坪大空間，獨立陽台直面中央山脈，衛浴分離，King Size 大床標配。",
       capacity: 2,
       size: "25坪",
-      imageUrl:
-        "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "",
       tag: "景觀首選",
     },
     {
@@ -59,8 +58,7 @@ export const brandConfig = {
         "小而精緻的山景雙人房。落地玻璃將峽谷風光引入室內，浴缸臨窗而設，泡澡同時坐擁無遮蔽天際線。",
       capacity: 2,
       size: "15坪",
-      imageUrl:
-        "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "",
       tag: "景觀首選",
     },
     {
@@ -70,8 +68,7 @@ export const brandConfig = {
         "兩間臥房分層獨立，共享 30 坪客廳與景觀陽台。二代同堂或兩組家庭出遊，保有各自隱私又共享天倫。",
       capacity: 4,
       size: "30坪",
-      imageUrl:
-        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "",
       tag: "家庭首選",
     },
   ],
@@ -91,8 +88,7 @@ export const brandConfig = {
   /** 敘事內容（Story Section） */
   story: {
     eyebrow: "關於晴境莊",
-    headline: "我們不只是在山裡蓋了一棟房子",
-    body: "而是把在城市裡丟掉的，安靜還給你。七年前第一次來到這片山谷，我們就決定了——不做成一個「景點」，而是一個「讓人想回來的地方」。每一間房的格局，都是我們親身住過才決定的；每一樣家具，都是反复更換後留下來的。",
+    headline: "把在城市裡丟掉的，安靜還給你",
     imageUrl:
       "https://images.unsplash.com/photo-1555636222-cae831e670b3?q=80&w=1200&auto=format&fit=crop",
   },
@@ -161,17 +157,17 @@ export const designDials = {
 // 獲客模板專用設定
 // ============================================
 export const acquisitionConfig = {
-  /** 模板展示標題（替換品牌名稱顯示） */
-  templateBadge: "民宿獲客模板展示",
+  /** 模板展示標題 */
+  templateBadge: "民宿獲客模板",
 
   /** 號召用語 */
-  primaryCTA: "免費取得網站方案",
-  secondaryCTA: "了解模板功能",
+  primaryCTA: "免費評估",
+  secondaryCTA: "看看功能",
 
   /** 底部版權 */
-  copyright: "© 2024 築時數位 · 民宿網站方案",
+  copyright: "© 2024 築時數位 · 民宿網站模板",
 
-  /** 技術棧展示（模板特色） */
+  /** 技術棧展示 */
   techStack: ["Next.js", "Framer Motion", "Tailwind CSS", "TypeScript"],
 } as const;
 

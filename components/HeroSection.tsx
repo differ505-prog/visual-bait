@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import { brandConfig, designDials } from "@/config/site";
 
 export function HeroSection() {
@@ -16,16 +17,9 @@ export function HeroSection() {
     [0, 1],
     ["0%", shouldAnimate ? "30%" : "0%"]
   );
-  const contentOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.45],
-    [1, 0]
-  );
-  const contentY = useTransform(
-    scrollYProgress,
-    [0, 0.45],
-    ["0%", shouldAnimate ? "-12%" : "0%"]
-  );
+  // 修復：拿掉 contentOpacity 消失動畫，只留背景視差
+  // 原本 [0, 0.45] 導致內容在第一個滾動就消失
+  // 改為讓內容自然靜止，背景以 0.4x 速度落後（視差效果）
 
   const easeOut = [0.16, 1, 0.3, 1] as const;
 
@@ -61,13 +55,7 @@ export function HeroSection() {
       {/* 滿版背景圖 */}
       <motion.div
         className="absolute inset-0"
-        style={{
-          backgroundImage: `url(${heroImageUrl})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          y: shouldAnimate ? backgroundY : 0,
-        }}
+        style={{ y: shouldAnimate ? backgroundY : 0 }}
         initial={shouldAnimate ? { scale: 1.04 } : false}
         animate={shouldAnimate ? { scale: 1 } : false}
         transition={
@@ -75,7 +63,17 @@ export function HeroSection() {
             ? { duration: 1.8, ease: easeOut as unknown as "easeOut" }
             : {}
         }
-      />
+      >
+        <Image
+          src={heroImageUrl}
+          alt=""
+          fill
+          priority
+          quality={85}
+          sizes="100vw"
+          className="object-cover"
+        />
+      </motion.div>
 
       {/* 暗色漸層遮罩 */}
       <div
@@ -97,11 +95,7 @@ export function HeroSection() {
       {/* 內容區塊 - 左下角不對稱佈局 */}
       <motion.div
         className="relative z-10 flex flex-col justify-end"
-        style={{
-          minHeight: "100dvh",
-          opacity: shouldAnimate ? contentOpacity : 1,
-          y: shouldAnimate ? contentY : 0,
-        }}
+        style={{ minHeight: "100dvh" }}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -173,7 +167,9 @@ export function HeroSection() {
       </motion.div>
 
       {/* 右下角：模板 Badge */}
-      <div className="absolute bottom-6 right-6 lg:right-10 text-white/20 text-[10px] tracking-widest uppercase hidden lg:block">
+      <div
+        className="absolute bottom-6 right-6 lg:right-10 text-white/35 text-[10px] tracking-widest uppercase hidden md:block px-2.5 py-1 border border-white/10 rounded"
+      >
         民宿獲客模板
       </div>
     </section>
@@ -183,9 +179,10 @@ export function HeroSection() {
 function TrustPill({ label }: { label: string }) {
   return (
     <span
-      className="text-white/50 text-[11px] tracking-wider uppercase hidden sm:inline"
+      className="text-white/50 text-[11px] tracking-wider uppercase"
     >
-      {label}
+      <span className="hidden sm:inline">{label}</span>
+      <span className="sm:hidden">{label}</span>
     </span>
   );
 }

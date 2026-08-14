@@ -31,11 +31,11 @@ export function FooterCTA() {
               letterSpacing: "0.04em",
             }}
           >
-            用一個網站，<br className="hidden md:block" />
+            用一個網站<br className="hidden md:block" />
             讓客人自己走進來
           </h2>
           <p className="text-white/50 text-base leading-relaxed max-w-[50ch] mx-auto mb-12">
-            民宿獲客模板已幫助超過 40 家民宿提升官網轉換率。現在取得專屬你的網站方案，首年建置費用 NT$38,000 起。
+            建立專業形象，提升官網轉換率。歡迎來聊，取得你的專屬網站方案
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -92,7 +92,7 @@ export function FooterCTA() {
 }
 
 export function Footer() {
-  const { brandName, phone, email } = brandConfig;
+  const { brandName, email, line } = brandConfig;
 
   return (
     <footer className="w-full py-8 border-t border-white/10">
@@ -102,10 +102,12 @@ export function Footer() {
         </p>
         <div className="flex items-center gap-6">
           <a
-            href={`tel:${phone}`}
+            href={line}
+            target="_blank"
+            rel="noreferrer"
             className="text-white/25 text-xs tracking-wider hover:text-white/60 transition-colors duration-300"
           >
-            {phone}
+            LINE 官方帳號
           </a>
           <a
             href={`mailto:${email}`}

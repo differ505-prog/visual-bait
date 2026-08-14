@@ -44,7 +44,7 @@ export function SectionFacilities() {
         </ScrollReveal>
 
         {/* Facilities Grid - 4-col on desktop */}
-        <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10">
+        <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-1 bg-white/10">
           {facilities.map((facility, i) => {
             const Icon = iconMap[facility.icon] || Coffee;
             return (
