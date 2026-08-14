@@ -87,7 +87,7 @@ export function HeroSection() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.75) 100%)",
+            "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(10,8,6,0.92) 100%)",
         }}
       />
 
@@ -96,14 +96,6 @@ export function HeroSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `radial-gradient(ellipse at 30% 40%, ${primaryColor}18 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(255,235,200,0.05) 0%, transparent 40%)`,
-        }}
-      />
-
-      {/* 底部平滑過渡遮罩 */}
-      <div
-        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
-        style={{
-          background: "linear-gradient(to top, #0a0806 0%, transparent 100%)",
         }}
       />
 
