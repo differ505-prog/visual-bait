@@ -3,12 +3,26 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
 
-// Configure Cloudinary — uses CLOUDINARY_URL if set, otherwise individual env vars
+// Parse CLOUDINARY_URL if set: cloudinary://api_key:api_secret@cloud_name
+function parseCloudinaryUrl(url: string) {
+  try {
+    const match = url.match(/cloudinary:\/\/([^:]+):([^@]+)@(.+)/);
+    if (match) {
+      return { api_key: match[1], api_secret: match[2], cloud_name: match[3] };
+    }
+  } catch {}
+  return null;
+}
+
+const cloudinaryConfig = process.env.CLOUDINARY_URL
+  ? parseCloudinaryUrl(process.env.CLOUDINARY_URL)
+  : null;
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  ...(process.env.CLOUDINARY_URL && { secure: true }),
+  cloud_name: cloudinaryConfig?.cloud_name ?? process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: cloudinaryConfig?.api_key ?? process.env.CLOUDINARY_API_KEY,
+  api_secret: cloudinaryConfig?.api_secret ?? process.env.CLOUDINARY_API_SECRET,
+  secure: true,
 });
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -36,11 +50,8 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Check if Cloudinary is configured
-    const hasCloudinary = !!(process.env.CLOUDINARY_URL || (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY));
-    console.log("[upload] Cloudinary configured:", hasCloudinary);
-    console.log("[upload] CLOUDINARY_URL:", process.env.CLOUDINARY_URL ? "set" : "not set");
-    console.log("[upload] CLOUDINARY_CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME || "not set");
-    console.log("[upload] CLOUDINARY_API_KEY:", process.env.CLOUDINARY_API_KEY || "not set");
+    const hasCloudinary = !!(cloudinaryConfig || (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY));
+    console.log("[upload] hasCloudinary:", hasCloudinary, "| config:", cloudinaryConfig);
 
     if (hasCloudinary) {
       // Upload to Cloudinary via base64
