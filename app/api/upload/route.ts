@@ -3,11 +3,12 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
 
-// Configure Cloudinary from env
+// Configure Cloudinary — uses CLOUDINARY_URL if set, otherwise individual env vars
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
+  ...(process.env.CLOUDINARY_URL && { secure: true }),
 });
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
