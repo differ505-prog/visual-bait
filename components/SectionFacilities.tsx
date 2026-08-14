@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useBrandConfig } from "@/components/TenantProvider";
 import { ScrollReveal, StaggerReveal } from "./ScrollReveal";
+import { brandConfig } from "@/config/site";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; weight?: "light" | "regular" | "bold" }>> = {
   WifiHigh,
@@ -26,10 +27,8 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; weight?: "lig
 
 export function SectionFacilities() {
   const brand = useBrandConfig();
-  const facilities = brand?.facilities ?? [];
-  const primaryColor = brand?.primaryColor ?? "#8B7355";
-
-  if (facilities.length === 0) return null;
+  const facilities = brand?.facilities?.length ? brand.facilities : brandConfig.facilities;
+  const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
 
   return (
     <section id="amenities" className="w-full py-24 lg:py-32">

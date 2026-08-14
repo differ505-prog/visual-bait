@@ -4,16 +4,16 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal, StaggerReveal } from "./ScrollReveal";
 import { Users, Ruler } from "@phosphor-icons/react";
+import { brandConfig } from "@/config/site";
 
 export function SectionRooms() {
   const brand = useBrandConfig();
   const design = useDesignDials();
 
-  const rooms = brand?.rooms ?? [];
-  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const rooms = brand?.rooms?.length ? brand.rooms : brandConfig.rooms;
+  const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
 
-  if (rooms.length === 0) return null;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = prefersReducedMotion ? false : MOTION_INTENSITY > 3;
 
