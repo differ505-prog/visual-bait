@@ -7,35 +7,41 @@ export function HeroSection() {
   const { brandName, heroImageUrl, primaryColor, slogan } = brandConfig;
   const { MOTION_INTENSITY } = designDials;
 
-  // 檢測系統是否偏好減少動畫
   const prefersReducedMotion = useReducedMotion();
-
-  // 滾動進度 (用於視差效果)
-  const { scrollYProgress } = useScroll();
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.5], ["0%", "20%"]);
-
-  // 動畫參數：根據系統偏好調整
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;
 
-  // 統一的過渡曲線
+  const { scrollYProgress } = useScroll();
+  const backgroundY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["0%", shouldAnimate ? "30%" : "0%"]
+  );
+  const contentOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.45],
+    [1, 0]
+  );
+  const contentY = useTransform(
+    scrollYProgress,
+    [0, 0.45],
+    ["0%", shouldAnimate ? "-12%" : "0%"]
+  );
+
   const easeOut = [0.16, 1, 0.3, 1] as const;
 
-  // 動畫變體
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: shouldAnimate ? 0.15 : 0,
+        staggerChildren: shouldAnimate ? 0.1 : 0,
         delayChildren: shouldAnimate ? 0.3 : 0,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: shouldAnimate ? 30 : 0 },
+    hidden: { opacity: 0, y: shouldAnimate ? 20 : 0 },
     visible: {
       opacity: 1,
       y: 0,
@@ -46,52 +52,53 @@ export function HeroSection() {
     },
   };
 
-  const imageVariants = {
-    hidden: { scale: shouldAnimate ? 1.08 : 1, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: shouldAnimate ? 1.4 : 0,
-        ease: easeOut as unknown as "easeOut",
-      },
-    },
-  };
-
-  const dividerVariants = {
-    hidden: { scaleX: 0, opacity: 0 },
-    visible: {
-      scaleX: 1,
-      opacity: 1,
-      transition: {
-        duration: shouldAnimate ? 0.6 : 0,
-        delay: shouldAnimate ? 0.6 : 0,
-        ease: easeOut as unknown as "easeOut",
-      },
-    },
-  };
-
   return (
-    <section className="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden">
-      {/* 滿版背景圖 (視差效果) */}
+    <section
+      className="relative w-full"
+      style={{ minHeight: "100dvh" }}
+      id="hero"
+    >
+      {/* 滿版背景圖 */}
       <motion.div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0"
         style={{
           backgroundImage: `url(${heroImageUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
           y: shouldAnimate ? backgroundY : 0,
         }}
-        variants={imageVariants}
-        initial="hidden"
-        animate="visible"
+        initial={shouldAnimate ? { scale: 1.04 } : false}
+        animate={shouldAnimate ? { scale: 1 } : false}
+        transition={
+          shouldAnimate
+            ? { duration: 1.8, ease: easeOut as unknown as "easeOut" }
+            : {}
+        }
       />
 
       {/* 暗色漸層遮罩 */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
-
-      {/* 內容區塊 (視差 + 滾動淡出) */}
-      <motion.div
-        className="relative z-10 flex flex-col items-center text-center px-6 max-w-4xl mx-auto"
+      <div
+        className="absolute inset-0"
         style={{
+          background:
+            "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.65) 100%)",
+        }}
+      />
+
+      {/* 暖色氛圍光暈 */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at 30% 40%, ${primaryColor}18 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(255,235,200,0.05) 0%, transparent 40%)`,
+        }}
+      />
+
+      {/* 內容區塊 - 左下角不對稱佈局 */}
+      <motion.div
+        className="relative z-10 flex flex-col justify-end"
+        style={{
+          minHeight: "100dvh",
           opacity: shouldAnimate ? contentOpacity : 1,
           y: shouldAnimate ? contentY : 0,
         }}
@@ -99,54 +106,86 @@ export function HeroSection() {
         initial="hidden"
         animate="visible"
       >
-        {/* 品牌名稱 */}
-        <motion.h1
-          className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-white mb-6"
-          variants={itemVariants}
-        >
-          {brandName}
-        </motion.h1>
+        <div className="max-w-6xl mx-auto w-full px-6 lg:px-12 pb-16 lg:pb-24">
+          {/* 左下品牌名稱 + 標語 */}
+          <motion.div variants={itemVariants} className="max-w-xl">
+            <h1
+              className="text-white text-4xl md:text-6xl lg:text-7xl font-light mb-4"
+              style={{
+                fontFamily: "var(--font-serif)",
+                letterSpacing: "0.08em",
+                textShadow: "0 4px 40px rgba(0,0,0,0.5)",
+              }}
+            >
+              {brandName}
+            </h1>
+            <p
+              className="text-white/70 text-sm md:text-base lg:text-lg font-light"
+              style={{
+                letterSpacing: "0.2em",
+                textShadow: "0 2px 20px rgba(0,0,0,0.5)",
+              }}
+            >
+              {slogan}
+            </p>
+          </motion.div>
 
-        {/* 裝飾線 */}
-        <motion.div
-          className="w-16 h-px mb-6"
-          style={{ backgroundColor: primaryColor }}
-          variants={dividerVariants}
-        />
-
-        {/* 標語 */}
-        <motion.p
-          className="text-xl md:text-2xl lg:text-3xl text-white/90 font-light tracking-wide max-w-xl"
-          variants={itemVariants}
-        >
-          {slogan}
-        </motion.p>
-
-        {/* 聯絡按鈕 */}
-        <motion.div variants={itemVariants} className="mt-12">
-          <motion.a
-            href="#contact"
-            className="inline-block px-8 py-3 border text-white text-sm tracking-widest uppercase"
-            style={{ borderColor: "rgba(255, 255, 255, 0.6)" }}
-            whileHover={
-              shouldAnimate
-                ? {
-                    borderColor: primaryColor,
-                    backgroundColor: `${primaryColor}20`,
-                    scale: 1.02,
-                    transition: { duration: 0.3, ease: easeOut as unknown as "easeOut" },
-                  }
-                : {}
-            }
-            whileTap={shouldAnimate ? { scale: 0.98 } : {}}
+          {/* CTA + Trust Strip 在同一列 */}
+          <motion.div
+            variants={itemVariants}
+            className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-6"
           >
-            聯絡我們
-          </motion.a>
-        </motion.div>
+            <motion.a
+              href="#rooms"
+              className="inline-block px-10 py-3.5 text-sm tracking-widest uppercase text-white border cursor-pointer"
+              style={{
+                backgroundColor: `${primaryColor}30`,
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                borderColor: "rgba(255,255,255,0.4)",
+                boxShadow: "0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)",
+              }}
+              whileHover={
+                shouldAnimate
+                  ? {
+                      backgroundColor: primaryColor,
+                      borderColor: primaryColor,
+                      boxShadow:
+                        "0 16px 50px rgba(139,115,85,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+                      scale: 1.03,
+                      transition: { duration: 0.3, ease: easeOut as unknown as "easeOut" },
+                    }
+                  : {}
+              }
+              whileTap={shouldAnimate ? { scale: 0.98 } : {}}
+            >
+              探索房型
+            </motion.a>
+
+            {/* Trust Strip - 打在 CTA 同一行 */}
+            <div className="flex items-center gap-5">
+              <TrustPill label="花蓮" />
+              <TrustPill label="山嵐景觀" />
+              <TrustPill label="管家服務" />
+            </div>
+          </motion.div>
+        </div>
       </motion.div>
 
-      {/* 底部漸層淡出 */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/80 to-transparent" />
+      {/* 右下角：模板 Badge */}
+      <div className="absolute bottom-6 right-6 lg:right-10 text-white/20 text-[10px] tracking-widest uppercase hidden lg:block">
+        民宿獲客模板
+      </div>
     </section>
+  );
+}
+
+function TrustPill({ label }: { label: string }) {
+  return (
+    <span
+      className="text-white/50 text-[11px] tracking-wider uppercase hidden sm:inline"
+    >
+      {label}
+    </span>
   );
 }
