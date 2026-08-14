@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
+import { brandConfig } from "@/config/site";
 import { Mail, MessageCircle } from "lucide-react";
 
 type FormState = "idle" | "submitting" | "success" | "error";
@@ -21,9 +22,9 @@ export function SectionContact() {
   const brand = useBrandConfig();
   const design = useDesignDials();
 
-  const primaryColor = brand?.primaryColor ?? "#8B7355";
-  const email = brand?.email ?? "";
-  const line = brand?.line ?? "#";
+  const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
+  const email = brand?.email || brandConfig.email;
+  const line = brand?.line || brandConfig.line;
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;

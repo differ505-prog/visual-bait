@@ -4,6 +4,7 @@ import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { useState, useEffect } from "react";
 import { List, X } from "@phosphor-icons/react";
+import { brandConfig } from "@/config/site";
 
 const navItems = [
   { label: "房型介紹", href: "#rooms" },
@@ -15,9 +16,8 @@ const navItems = [
 export function Navigation() {
   const brand = useBrandConfig();
   const design = useDesignDials();
-
-  const brandName = brand?.brandName ?? "民宿";
-  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const brandName = brand?.brandName || brandConfig.brandName;
+  const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);

@@ -3,13 +3,18 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
+import { brandConfig } from "@/config/site";
 
 export function SectionStory() {
   const brand = useBrandConfig();
   const design = useDesignDials();
 
-  const story = brand?.story ?? { eyebrow: "", headline: "", imageUrl: "" };
-  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const story = {
+    eyebrow: brand?.story?.eyebrow || brandConfig.story.eyebrow,
+    headline: brand?.story?.headline || brandConfig.story.headline,
+    imageUrl: brand?.story?.imageUrl || brandConfig.story.imageUrl,
+  };
+  const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;

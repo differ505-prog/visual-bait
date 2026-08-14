@@ -4,13 +4,14 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useBrandConfig, useDesignDials, useAcquisitionConfig } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
 import { ArrowRight } from "@phosphor-icons/react";
+import { brandConfig } from "@/config/site";
 
 export function FooterCTA() {
   const brand = useBrandConfig();
   const design = useDesignDials();
   const acq = useAcquisitionConfig();
 
-  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;
@@ -97,9 +98,9 @@ export function FooterCTA() {
 export function Footer() {
   const brand = useBrandConfig();
 
-  const brandName = brand?.brandName ?? "民宿";
-  const email = brand?.email ?? "hello@example.com";
-  const line = brand?.line ?? "#";
+  const brandName = brand?.brandName || brandConfig.brandName;
+  const email = brand?.email || brandConfig.email;
+  const line = brand?.line || brandConfig.line;
 
   return (
     <footer className="w-full py-8 border-t border-white/10">
