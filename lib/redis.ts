@@ -74,10 +74,17 @@ export async function storeLead(lead: ContactLead): Promise<void> {
   const key = `arrive-contact-lead:${lead.id}`;
   const now = new Date().toISOString();
 
-  await client.hset(key, {
+  const dataToStore = Object.entries({
     ...lead,
     createdAt: now,
-  });
+  }).reduce((acc, [k, v]) => {
+    if (v !== undefined && v !== null) {
+      acc[k] = v;
+    }
+    return acc;
+  }, {} as Record<string, any>);
+
+  await client.hset(key, dataToStore);
 
   // Add to index for listing
   await client.zadd("arrive-contact-leads-index", {
@@ -100,5 +107,5 @@ export async function getLeads(): Promise<ContactLead[]> {
     ids.map((id) => client.hgetall<ContactLead>(`arrive-contact-lead:${id}`))
   );
 
-  return leads.filter(Boolean) as ContactLead[];
+  return leads.filter(Boolean) as unknown as ContactLead[];
 }

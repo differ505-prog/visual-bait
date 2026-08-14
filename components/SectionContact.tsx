@@ -15,6 +15,7 @@ interface FormData {
   lineId: string;
   email: string;
   message: string;
+  website: string; // honeypot
 }
 
 export function SectionContact() {
@@ -30,6 +31,7 @@ export function SectionContact() {
     lineId: "",
     email: "",
     message: "",
+    website: "",
   });
   const [formState, setFormState] = useState<FormState>("idle");
   const [errors, setErrors] = useState<Partial<FormData>>({});
@@ -52,12 +54,25 @@ export function SectionContact() {
     if (!validate()) return;
 
     setFormState("submitting");
-    setFeedbackMessage("");
 
-    // Simulate submission
-    await new Promise((r) => setTimeout(r, 1500));
-    setFormState("success");
-    setFeedbackMessage("已收到你的訊息，我們會在 1-2 個工作天內回覆你");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "送出失敗");
+      }
+
+      setFormState("success");
+      setFeedbackMessage("已收到你的訊息，我們會在 1-2 個工作天內回覆你");
+    } catch (err) {
+      setFormState("error");
+      setFeedbackMessage(err instanceof Error ? err.message : "送出失敗，請稍後再試");
+    }
   };
 
   const handleChange = (
@@ -252,6 +267,18 @@ export function SectionContact() {
                   value={formData.email}
                   error={errors.email}
                   onChange={handleChange}
+                />
+
+                {/* Honeypot - hidden from real users */}
+                <input
+                  type="text"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleChange}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="absolute -left-[9999px] w-px h-px"
+                  aria-hidden="true"
                 />
 
                 <div className="flex flex-col gap-2">
