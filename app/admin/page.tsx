@@ -39,8 +39,6 @@ interface TenantForm {
   pricingEyebrow: string;
   pricingHeadline: string;
   active: boolean;
-  telegramBotToken: string;
-  telegramChatId: string;
 }
 
 const emptyForm = (): TenantForm => ({
@@ -61,8 +59,6 @@ const emptyForm = (): TenantForm => ({
   pricingEyebrow: "",
   pricingHeadline: "",
   active: true,
-  telegramBotToken: "",
-  telegramChatId: "",
 });
 
 // ─── Room Editor ─────────────────────────────────────────────────────
@@ -304,8 +300,6 @@ export default function AdminPage() {
       pricingEyebrow: t.pricing?.eyebrow ?? "",
       pricingHeadline: t.pricing?.headline ?? "",
       active: t.active,
-      telegramBotToken: t.telegramBotToken ?? "",
-      telegramChatId: t.telegramChatId ?? "",
     });
     setEditingSlug(t.slug);
     setShowForm(true);
@@ -334,8 +328,6 @@ export default function AdminPage() {
           imageUrl: form.storyImageUrl,
         };
       }
-      if (form.telegramBotToken) payload.telegramBotToken = form.telegramBotToken;
-      if (form.telegramChatId) payload.telegramChatId = form.telegramChatId;
       payload.active = form.active;
 
       let res: Response;
@@ -355,7 +347,7 @@ export default function AdminPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        showMessage("error", data.error ?? "儲存失敗");
+        showMessage("error", `儲存失敗：${data.error ?? "請檢查終端機錯誤訊息"}`);
       } else {
         showMessage("success", editingSlug ? "民宿已更新" : "民宿已建立");
         setShowForm(false);
@@ -523,6 +515,7 @@ export default function AdminPage() {
                   </div>
                   <Field label="民宿名稱" value={form.brandName} onChange={setField("brandName")} placeholder="晴境莊" />
                   <Field label="主視覺圖片網址" value={form.heroImageUrl} onChange={setField("heroImageUrl")} placeholder="https://..." />
+                  <p className="text-xs text-gray-400 mt-1">建議使用 Cloudinary 或 Imgur 等圖床，圖片需先 LR 調色後上傳</p>
                   <Field label="品牌主色調" value={form.primaryColor} onChange={setField("primaryColor")} placeholder="#8B7355" />
                   <div className="col-span-2">
                     <Field label="主打標語" value={form.slogan} onChange={setField("slogan")} placeholder="在山海之間，遇見回家的感覺" />
@@ -573,24 +566,6 @@ export default function AdminPage() {
                   <Field label="大標題" value={form.storyHeadline} onChange={setField("storyHeadline")} placeholder="把在城市裡丟掉的，安靜還給你" />
                   <div className="col-span-2">
                     <Field label="故事圖片網址" value={form.storyImageUrl} onChange={setField("storyImageUrl")} placeholder="https://..." />
-                  </div>
-                </div>
-              </section>
-
-              {/* Telegram */}
-              <section>
-                <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  Telegram 通知設定
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Field label="Bot Token" value={form.telegramBotToken} onChange={setField("telegramBotToken")} placeholder="8947491342:AAH..." />
-                    <p className="text-xs text-gray-400 mt-1">向 @BotFather 取得</p>
-                  </div>
-                  <div>
-                    <Field label="Chat ID" value={form.telegramChatId} onChange={setField("telegramChatId")} placeholder="-1001234567890" />
-                    <p className="text-xs text-gray-400 mt-1">向 @userinfobot 取得</p>
                   </div>
                 </div>
               </section>
