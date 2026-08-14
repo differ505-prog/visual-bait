@@ -27,7 +27,24 @@ export async function PUT(
     const body = await req.json();
     const { ...data } = body;
 
-    const tenant = await updateTenant(slug, data);
+    // Merge with existing tenant so missing fields keep their values
+    const existing = await getTenant(slug);
+    if (!existing) {
+      return NextResponse.json({ error: "民宿不存在" }, { status: 404 });
+    }
+
+    // Fields the admin form sends as "only if filled"
+    const merged = {
+      ...existing,
+      ...data,
+      // Always preserve these even if empty string was sent
+      rooms: data.rooms ?? existing.rooms,
+      facilities: data.facilities ?? existing.facilities,
+      story: data.story ?? existing.story,
+      pricing: existing.pricing,
+    };
+
+    const tenant = await updateTenant(slug, merged);
     return NextResponse.json({ success: true, tenant });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

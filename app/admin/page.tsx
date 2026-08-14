@@ -129,7 +129,7 @@ function RoomEditor({
             onChange={(e) => updateRoom(i, { description: e.target.value })}
             placeholder="房型描述"
             rows={2}
-            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+            className="w-full text-sm text-gray-900 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none bg-white"
           />
           <Field label="圖片網址" value={room.imageUrl} onChange={(v) => updateRoom(i, { imageUrl: v })} placeholder="https://..." />
         </div>
@@ -182,7 +182,7 @@ function FacilityEditor({
               value={f.name}
               onChange={(e) => updateFacility(i, { name: e.target.value })}
               placeholder="設施名稱"
-              className="flex-1 text-sm bg-transparent focus:outline-none"
+              className="flex-1 text-sm text-gray-900 bg-white focus:outline-none"
             />
             <select
               value={f.icon}
@@ -230,7 +230,7 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           rows={rows}
-          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+          className="w-full text-sm text-gray-900 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none bg-white"
         />
       ) : (
         <input
@@ -239,7 +239,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="w-full text-sm text-gray-900 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
         />
       )}
     </div>
@@ -314,30 +314,36 @@ export default function AdminPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = {
-        brandName: form.brandName,
-        heroImageUrl: form.heroImageUrl,
-        primaryColor: form.primaryColor,
-        slogan: form.slogan,
-        phone: form.phone,
-        email: form.email,
-        line: form.line,
-        address: form.address,
-        rooms: form.rooms,
-        facilities: form.facilities,
-        story: { eyebrow: form.storyEyebrow, headline: form.storyHeadline, imageUrl: form.storyImageUrl },
-        pricing: { eyebrow: form.pricingEyebrow, headline: form.pricingHeadline, plans: [] },
-        telegramBotToken: form.telegramBotToken || undefined,
-        telegramChatId: form.telegramChatId || undefined,
-        active: form.active,
-      };
+      const payload: Record<string, unknown> = {};
+
+      // Only include fields with actual values — empty fields use template defaults
+      if (form.brandName) payload.brandName = form.brandName;
+      if (form.heroImageUrl) payload.heroImageUrl = form.heroImageUrl;
+      if (form.primaryColor) payload.primaryColor = form.primaryColor;
+      if (form.slogan) payload.slogan = form.slogan;
+      if (form.phone) payload.phone = form.phone;
+      if (form.email) payload.email = form.email;
+      if (form.line) payload.line = form.line;
+      if (form.address) payload.address = form.address;
+      if (form.rooms.length > 0) payload.rooms = form.rooms;
+      if (form.facilities.length > 0) payload.facilities = form.facilities;
+      if (form.storyEyebrow || form.storyHeadline || form.storyImageUrl) {
+        payload.story = {
+          eyebrow: form.storyEyebrow,
+          headline: form.storyHeadline,
+          imageUrl: form.storyImageUrl,
+        };
+      }
+      if (form.telegramBotToken) payload.telegramBotToken = form.telegramBotToken;
+      if (form.telegramChatId) payload.telegramChatId = form.telegramChatId;
+      payload.active = form.active;
 
       let res: Response;
       if (editingSlug) {
         res = await fetch(`/api/tenants/${editingSlug}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ ...payload }),
         });
       } else {
         res = await fetch("/api/tenants", {
