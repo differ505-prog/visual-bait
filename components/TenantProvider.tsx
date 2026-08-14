@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode } from "react";
 import { TenantConfig } from "@/lib/redis";
-import { brandConfig, designDials as staticDesignDials } from "@/config/site";
+import { brandConfig, designDials as staticDesignDials, acquisitionConfig as staticAcquisitionConfig } from "@/config/site";
 
 interface TenantContextValue {
   tenant: TenantConfig | null;
@@ -83,5 +83,13 @@ export function useDesignDials() {
 
   if (tenant) return tenant.designDials;
   if (isDemo) return staticDesignDials;
+  return null;
+}
+
+export function useAcquisitionConfig() {
+  const { tenant, isDemo } = useTenant();
+
+  if (tenant) return tenant.acquisitionConfig;
+  if (isDemo) return staticAcquisitionConfig;
   return null;
 }

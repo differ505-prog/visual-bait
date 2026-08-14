@@ -1,18 +1,15 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
-import { acquisitionConfig as staticAcq } from "@/config/site";
+import { useBrandConfig, useDesignDials, useAcquisitionConfig } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
 import { ArrowRight } from "@phosphor-icons/react";
-
-const acq = staticAcq;
 
 export function FooterCTA() {
   const brand = useBrandConfig();
   const design = useDesignDials();
+  const acq = useAcquisitionConfig();
 
-  const brandName = brand?.brandName ?? "民宿";
   const primaryColor = brand?.primaryColor ?? "#8B7355";
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
@@ -28,7 +25,7 @@ export function FooterCTA() {
             className="text-xs uppercase tracking-[0.2em] mb-5"
             style={{ color: primaryColor }}
           >
-            {acquisitionConfig.templateBadge}
+            {acq?.templateBadge ?? "民宿官網模板"}
           </p>
           <h2
             className="text-3xl md:text-5xl lg:text-6xl text-white font-light mb-6 leading-tight"
@@ -63,7 +60,7 @@ export function FooterCTA() {
               }
               whileTap={shouldAnimate ? { scale: 0.98 } : {}}
             >
-              {acquisitionConfig.primaryCTA}
+              {acq?.primaryCTA ?? "取得方案"}
               <ArrowRight size={16} weight="regular" />
             </motion.a>
 
@@ -82,7 +79,7 @@ export function FooterCTA() {
             技術棧
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            {acquisitionConfig.techStack.map((tech) => (
+            {(acq?.techStack ?? ["Next.js", "Vercel", "Vercel KV", "Framer Motion"]).map((tech: string) => (
               <span
                 key={tech}
                 className="text-white/30 text-xs tracking-wider px-3 py-1.5 border border-white/10"
@@ -98,13 +95,17 @@ export function FooterCTA() {
 }
 
 export function Footer() {
-  const { brandName, email, line } = brandConfig;
+  const brand = useBrandConfig();
+
+  const brandName = brand?.brandName ?? "民宿";
+  const email = brand?.email ?? "hello@example.com";
+  const line = brand?.line ?? "#";
 
   return (
     <footer className="w-full py-8 border-t border-white/10">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-white/25 text-xs tracking-wider">
-          {acquisitionConfig.copyright}
+          &copy; {new Date().getFullYear()} {brandName}
         </p>
         <div className="flex items-center gap-6">
           <a

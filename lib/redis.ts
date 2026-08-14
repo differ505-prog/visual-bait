@@ -101,7 +101,7 @@ export interface ContactLead {
 export async function getTenant(slug: string): Promise<TenantConfig | null> {
   const client = getRedis();
   if (!client) return null;
-  const data = await client.hgetall<TenantConfig>(`tenant:${slug}`);
+  const data = await client.hgetall(`tenant:${slug}`) as unknown as TenantConfig | null;
   return data && Object.keys(data).length > 0 ? data : null;
 }
 
@@ -208,7 +208,7 @@ export async function listCampaigns(): Promise<Campaign[]> {
   const ids = await client.zrange<string[]>("campaign-index", 0, -1, { rev: true });
   if (!ids.length) return [];
   const campaigns = await Promise.all(
-    ids.map((id) => client.hgetall<Campaign>(`campaign:${id}`))
+    ids.map((id) => client.hgetall(`campaign:${id}`) as unknown as Campaign)
   );
   return campaigns.filter((c): c is Campaign => c !== null && Object.keys(c).length > 0);
 }
@@ -216,7 +216,7 @@ export async function listCampaigns(): Promise<Campaign[]> {
 export async function updateCampaign(id: string, data: Partial<Campaign>): Promise<Campaign> {
   const client = getRedis();
   if (!client) throw new Error("Redis unavailable");
-  const existing = await client.hgetall<Campaign>(`campaign:${id}`);
+  const existing = await client.hgetall(`campaign:${id}`) as unknown as Campaign;
   if (!existing || Object.keys(existing).length === 0) throw new Error(`Campaign "${id}" not found`);
   const updated = { ...existing, ...data };
   await client.hset(`campaign:${id}`, updated as unknown as Record<string, unknown>);
@@ -259,7 +259,7 @@ export async function storeLead(lead: ContactLead): Promise<void> {
     await client.zadd(`lead-index:${lead.slug}`, { score: Date.now(), member: lead.id });
     // Update campaign lead count if linked
     if (lead.source && lead.source.startsWith("camp-")) {
-      const campaign = await client.hgetall<Campaign>(`campaign:${lead.source}`);
+      const campaign = await client.hgetall(`campaign:${lead.source}`) as unknown as Campaign;
       if (campaign && Object.keys(campaign).length > 0) {
         await client.hset(`campaign:${lead.source}`, {
           ...campaign,
@@ -280,7 +280,7 @@ export async function getLeadsBySlug(slug: string): Promise<ContactLead[]> {
   const ids = await client.zrange<string[]>(`lead-index:${slug}`, 0, -1, { rev: true });
   if (!ids.length) return [];
   const leads = await Promise.all(
-    ids.map((id) => client.hgetall<ContactLead>(`lead:${slug}:${id}`))
+    ids.map((id) => client.hgetall(`lead:${slug}:${id}`) as unknown as ContactLead)
   );
   return leads.filter(Boolean) as unknown as ContactLead[];
 }

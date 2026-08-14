@@ -47,7 +47,7 @@ function parseHostname(hostname: string): {
 
 function getTenantSlug(req: NextRequest): string | null {
   const { pathname } = req.nextUrl;
-  const { hostname } = req;
+  const { hostname } = req.nextUrl;
 
   // Path-based: /{slug}/*
   if (pathname !== "/" && !isReservedPath(pathname)) {
