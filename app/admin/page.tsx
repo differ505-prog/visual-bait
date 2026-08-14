@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { TenantConfig } from "@/lib/redis";
 import { Plus, ExternalLink, Trash2, Edit2, X, Check, RefreshCw } from "lucide-react";
+import { ImageUploader } from "@/components/ImageUploader";
 
 // ─── Types ───────────────────────────────────────────────────────────
 interface Room {
@@ -127,7 +128,12 @@ function RoomEditor({
             rows={2}
             className="w-full text-sm text-gray-900 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none bg-white"
           />
-          <Field label="圖片網址" value={room.imageUrl} onChange={(v) => updateRoom(i, { imageUrl: v })} placeholder="https://..." />
+          <ImageUploader
+            value={room.imageUrl}
+            onChange={(v) => updateRoom(i, { imageUrl: v })}
+            label="房型圖片"
+            hint="建議比例 4:3"
+          />
         </div>
       ))}
       {rooms.length === 0 && (
@@ -523,8 +529,14 @@ export default function AdminPage() {
                     <p className="text-xs text-gray-400 mt-1">英文或數字，不可重複</p>
                   </div>
                   <Field label="民宿名稱" value={form.brandName} onChange={setField("brandName")} placeholder="晴境莊" />
-                  <Field label="主視覺圖片網址" value={form.heroImageUrl} onChange={setField("heroImageUrl")} placeholder="https://..." />
-                  <p className="text-xs text-gray-400 mt-1">建議使用 Cloudinary 或 Imgur 等圖床，圖片需先 LR 調色後上傳</p>
+                  <div className="col-span-2">
+                    <ImageUploader
+                      label="主視覺圖片"
+                      value={form.heroImageUrl}
+                      onChange={(v) => setForm((f) => ({ ...f, heroImageUrl: v }))}
+                      hint="建議長寬比 16:9，上傳後會自動優化"
+                    />
+                  </div>
                   <Field label="品牌主色調" value={form.primaryColor} onChange={setField("primaryColor")} placeholder="#8B7355" />
                   <div className="col-span-2">
                     <Field label="主打標語" value={form.slogan} onChange={setField("slogan")} placeholder="在山海之間，遇見回家的感覺" />
@@ -574,7 +586,11 @@ export default function AdminPage() {
                   <Field label="小標題" value={form.storyEyebrow} onChange={setField("storyEyebrow")} placeholder="關於晴境莊" />
                   <Field label="大標題" value={form.storyHeadline} onChange={setField("storyHeadline")} placeholder="把在城市裡丟掉的，安靜還給你" />
                   <div className="col-span-2">
-                    <Field label="故事圖片網址" value={form.storyImageUrl} onChange={setField("storyImageUrl")} placeholder="https://..." />
+                    <ImageUploader
+                      label="故事圖片"
+                      value={form.storyImageUrl}
+                      onChange={(v) => setForm((f) => ({ ...f, storyImageUrl: v }))}
+                    />
                   </div>
                 </div>
               </section>
