@@ -40,8 +40,8 @@ export function SectionPricing() {
         { label: "線上訂房、房型展示或內容管理系統", included: true },
         { label: "房型、設施與在地體驗完整呈現", included: true },
         { label: "第三方工具、訊息通知或金流整合", included: true },
-        { label: "PMS 後台串接與自動化流程", included: true },
-        { label: "省力模組（自助 check-in、早餐點餐等）", included: false },
+        { label: "上線後技術支援與迭代建議", included: true },
+        { label: "PMS 後台串接與自動化流程", included: false },
       ],
     },
     {
