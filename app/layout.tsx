@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Serif_TC, Noto_Sans_TC } from "next/font/google";
 import "./globals.css";
-import { siteConfig } from "@/config/site";
+import { brandConfig } from "@/config/site";
 
 const notoSerif = Noto_Serif_TC({
   variable: "--font-serif",
@@ -16,8 +16,8 @@ const notoSans = Noto_Sans_TC({
 });
 
 export const metadata: Metadata = {
-  title: siteConfig.brandName,
-  description: siteConfig.slogan,
+  title: brandConfig.brandName,
+  description: brandConfig.slogan,
 };
 
 export default function RootLayout({
@@ -26,10 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="zh-TW"
-      className={`${notoSerif.variable} ${notoSans.variable}`}
-    >
+    <html lang="zh-TW" className={`${notoSerif.variable} ${notoSans.variable}`}>
       <body className="min-h-screen bg-black antialiased font-sans">
         {children}
       </body>
