@@ -29,6 +29,8 @@ export function SectionFacilities() {
   const facilities = brand?.facilities ?? [];
   const primaryColor = brand?.primaryColor ?? "#8B7355";
 
+  if (facilities.length === 0) return null;
+
   return (
     <section id="amenities" className="w-full py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">

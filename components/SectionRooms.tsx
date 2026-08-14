@@ -12,6 +12,8 @@ export function SectionRooms() {
   const rooms = brand?.rooms ?? [];
   const primaryColor = brand?.primaryColor ?? "#8B7355";
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
+
+  if (rooms.length === 0) return null;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = prefersReducedMotion ? false : MOTION_INTENSITY > 3;
 
@@ -39,33 +41,17 @@ export function SectionRooms() {
 
         {/* Editorial Grid - asymmetric 3+2 layout */}
         <StaggerReveal className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-          {/* Room 1 - left large (3/5) */}
-          <RoomCard
-            room={rooms[0]}
-            primaryColor={primaryColor}
-            className="lg:col-span-3 lg:row-span-2"
-            large
-            index={0}
-            shouldAnimate={shouldAnimate}
-          />
-
-          {/* Room 2 - right top (2/5) */}
-          <RoomCard
-            room={rooms[1]}
-            primaryColor={primaryColor}
-            className="lg:col-span-2"
-            index={1}
-            shouldAnimate={shouldAnimate}
-          />
-
-          {/* Room 3 - right bottom (2/5) */}
-          <RoomCard
-            room={rooms[2]}
-            primaryColor={primaryColor}
-            className="lg:col-span-2"
-            index={2}
-            shouldAnimate={shouldAnimate}
-          />
+          {rooms.slice(0, 3).map((room, i) => (
+            <RoomCard
+              key={room.id}
+              room={room}
+              primaryColor={primaryColor}
+              className={i === 0 ? "lg:col-span-3 lg:row-span-2" : "lg:col-span-2"}
+              large={i === 0}
+              index={i}
+              shouldAnimate={shouldAnimate}
+            />
+          ))}
         </StaggerReveal>
       </div>
     </section>
