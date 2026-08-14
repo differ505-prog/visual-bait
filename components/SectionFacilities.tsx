@@ -10,7 +10,7 @@ import {
   Snowflake,
   Fire,
 } from "@phosphor-icons/react";
-import { brandConfig, designDials } from "@/config/site";
+import { useBrandConfig } from "@/components/TenantProvider";
 import { ScrollReveal, StaggerReveal } from "./ScrollReveal";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; weight?: "light" | "regular" | "bold" }>> = {
@@ -25,7 +25,9 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; weight?: "lig
 };
 
 export function SectionFacilities() {
-  const { facilities, primaryColor } = brandConfig;
+  const brand = useBrandConfig();
+  const facilities = brand?.facilities ?? [];
+  const primaryColor = brand?.primaryColor ?? "#8B7355";
 
   return (
     <section id="amenities" className="w-full py-24 lg:py-32">

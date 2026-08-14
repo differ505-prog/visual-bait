@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { brandConfig, designDials } from "@/config/site";
+import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
 import { Mail, MessageCircle } from "lucide-react";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
 interface FormData {
-  innName: string;
   name: string;
   phone: string;
   lineId: string;
@@ -19,13 +18,17 @@ interface FormData {
 }
 
 export function SectionContact() {
-  const { primaryColor, email, line } = brandConfig;
-  const { MOTION_INTENSITY } = designDials;
+  const brand = useBrandConfig();
+  const design = useDesignDials();
+
+  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const email = brand?.email ?? "";
+  const line = brand?.line ?? "#";
+  const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;
 
   const [formData, setFormData] = useState<FormData>({
-    innName: "",
     name: "",
     phone: "",
     lineId: "",
@@ -39,7 +42,6 @@ export function SectionContact() {
 
   const validate = (): boolean => {
     const newErrors: Partial<FormData> = {};
-    if (!formData.innName.trim()) newErrors.innName = "請填寫民宿名稱";
     if (!formData.name.trim()) newErrors.name = "請填寫姓名";
     if (!formData.phone.trim()) newErrors.phone = "請填寫聯絡電話";
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
@@ -220,16 +222,6 @@ export function SectionContact() {
                   border: `1px solid ${primaryColor}20`,
                 }}
               >
-                <FormField
-                  label="民宿名稱"
-                  name="innName"
-                  placeholder="例：花蓮山嵐民宿"
-                  value={formData.innName}
-                  error={errors.innName}
-                  onChange={handleChange}
-                  required
-                />
-
                 <FormField
                   label="姓名"
                   name="name"

@@ -1,13 +1,17 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { brandConfig, designDials } from "@/config/site";
+import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal, StaggerReveal } from "./ScrollReveal";
 import { Users, Ruler } from "@phosphor-icons/react";
 
 export function SectionRooms() {
-  const { rooms, primaryColor } = brandConfig;
-  const { MOTION_INTENSITY } = designDials;
+  const brand = useBrandConfig();
+  const design = useDesignDials();
+
+  const rooms = brand?.rooms ?? [];
+  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = prefersReducedMotion ? false : MOTION_INTENSITY > 3;
 

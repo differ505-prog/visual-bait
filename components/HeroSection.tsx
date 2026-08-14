@@ -2,11 +2,17 @@
 
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { brandConfig, designDials } from "@/config/site";
+import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 
 export function HeroSection() {
-  const { brandName, heroImageUrl, primaryColor, slogan } = brandConfig;
-  const { MOTION_INTENSITY } = designDials;
+  const brand = useBrandConfig();
+  const design = useDesignDials();
+
+  const brandName = brand?.brandName ?? "民宿";
+  const heroImageUrl = brand?.heroImageUrl ?? "";
+  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const slogan = brand?.slogan ?? "";
+  const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
 
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;

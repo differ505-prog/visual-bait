@@ -1,12 +1,16 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { brandConfig, designDials } from "@/config/site";
+import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
 
 export function SectionStory() {
-  const { story, primaryColor } = brandConfig;
-  const { MOTION_INTENSITY } = designDials;
+  const brand = useBrandConfig();
+  const design = useDesignDials();
+
+  const story = brand?.story ?? { eyebrow: "", headline: "", imageUrl: "" };
+  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;
 

@@ -9,7 +9,7 @@ function getRedis(): Redis | null {
   const token = process.env.KV_REST_API_TOKEN;
 
   if (!url || !token) {
-    console.warn("[contact] Redis env vars not configured");
+    console.warn("[redis] KV env vars not configured");
     return null;
   }
 
@@ -17,16 +17,296 @@ function getRedis(): Redis | null {
   return redis;
 }
 
-interface ContactLead {
+// ============================================================
+// Types
+// ============================================================
+
+export interface TenantConfig {
+  slug: string;
+  brandName: string;
+  heroImageUrl: string;
+  primaryColor: string;
+  slogan: string;
+  phone: string;
+  email: string;
+  line: string;
+  address: string;
+  rooms: Array<{
+    id: string;
+    name: string;
+    description: string;
+    capacity: number;
+    size: string;
+    imageUrl: string;
+    tag: string;
+  }>;
+  facilities: Array<{ id: string; name: string; icon: string }>;
+  story: {
+    eyebrow: string;
+    headline: string;
+    imageUrl: string;
+  };
+  pricing: {
+    eyebrow: string;
+    headline: string;
+    plans: Array<{
+      id: string;
+      name: string;
+      price: string;
+      period: string;
+      features: string[];
+      cta: string;
+      highlight?: boolean;
+    }>;
+  };
+  designDials: {
+    VARIANCE: number;
+    MOTION_INTENSITY: number;
+    DENSITY: number;
+  };
+  telegramBotToken?: string;
+  telegramChatId?: string;
+  expiresAt: string; // ISO date string, empty = never expires
+  active: boolean;
+  createdAt: string;
+}
+
+export interface Campaign {
   id: string;
-  innName: string;
+  slug: string;
+  name: string;
+  expiresAt: string;
+  active: boolean;
+  createdAt: string;
+  leadCount: number;
+}
+
+export interface ContactLead {
+  id: string;
+  slug: string;
+  tenantName: string;
   name: string;
   phone: string;
   lineId?: string;
   email?: string;
   message: string;
-  source: "visual-bait";
+  source: string;
   createdAt: string;
+}
+
+// ============================================================
+// Tenant CRUD
+// ============================================================
+
+export async function getTenant(slug: string): Promise<TenantConfig | null> {
+  const client = getRedis();
+  if (!client) return null;
+  const data = await client.hgetall<TenantConfig>(`tenant:${slug}`);
+  return data && Object.keys(data).length > 0 ? data : null;
+}
+
+export async function listTenants(): Promise<TenantConfig[]> {
+  const client = getRedis();
+  if (!client) return [];
+  const slugs = await client.zrange<string[]>("tenant-index", 0, -1, { rev: true });
+  if (!slugs.length) return [];
+  const tenants = await Promise.all(slugs.map((s) => getTenant(s)));
+  return tenants.filter((t): t is TenantConfig => t !== null);
+}
+
+export async function createTenant(slug: string, data: Partial<TenantConfig>): Promise<TenantConfig> {
+  const client = getRedis();
+  if (!client) throw new Error("Redis unavailable");
+
+  const existing = await getTenant(slug);
+  if (existing) throw new Error(`Tenant "${slug}" 已存在`);
+
+  const now = new Date().toISOString();
+  const tenant: TenantConfig = {
+    slug,
+    brandName: data.brandName ?? "我的民宿",
+    heroImageUrl: data.heroImageUrl ?? "",
+    primaryColor: data.primaryColor ?? "#8B7355",
+    slogan: data.slogan ?? "",
+    phone: data.phone ?? "",
+    email: data.email ?? "",
+    line: data.line ?? "",
+    address: data.address ?? "",
+    rooms: data.rooms ?? [],
+    facilities: data.facilities ?? [],
+    story: data.story ?? { eyebrow: "", headline: "", imageUrl: "" },
+    pricing: data.pricing ?? { eyebrow: "", headline: "", plans: [] },
+    designDials: data.designDials ?? { VARIANCE: 8, MOTION_INTENSITY: 7, DENSITY: 3 },
+    expiresAt: data.expiresAt ?? "",
+    active: data.active ?? true,
+    createdAt: now,
+  };
+
+  await client.hset(`tenant:${slug}`, tenant as unknown as Record<string, unknown>);
+  await client.zadd("tenant-index", { score: Date.now(), member: slug });
+  return tenant;
+}
+
+export async function updateTenant(slug: string, data: Partial<TenantConfig>): Promise<TenantConfig> {
+  const client = getRedis();
+  if (!client) throw new Error("Redis unavailable");
+
+  const existing = await getTenant(slug);
+  if (!existing) throw new Error(`Tenant "${slug}" 不存在`);
+
+  const updated = { ...existing, ...data, slug };
+  await client.hset(`tenant:${slug}`, updated as unknown as Record<string, unknown>);
+  return updated;
+}
+
+export async function deleteTenant(slug: string): Promise<void> {
+  const client = getRedis();
+  if (!client) throw new Error("Redis unavailable");
+  await client.del(`tenant:${slug}`);
+  await client.zrem("tenant-index", slug);
+}
+
+export async function setCustomDomain(domain: string, slug: string): Promise<void> {
+  const client = getRedis();
+  if (!client) return;
+  await client.set(`domain-map:${domain.toLowerCase()}`, slug);
+}
+
+export async function getTenantByDomain(domain: string): Promise<TenantConfig | null> {
+  const client = getRedis();
+  if (!client) return null;
+  const slug = await client.get<string>(`domain-map:${domain.toLowerCase()}`);
+  if (!slug) return null;
+  return getTenant(slug);
+}
+
+// ============================================================
+// Campaign CRUD
+// ============================================================
+
+export async function createCampaign(slug: string, name: string, expiresAt: string): Promise<Campaign> {
+  const client = getRedis();
+  if (!client) throw new Error("Redis unavailable");
+
+  const id = `camp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const now = new Date().toISOString();
+  const campaign: Campaign = {
+    id, slug, name, expiresAt,
+    active: true,
+    createdAt: now,
+    leadCount: 0,
+  };
+
+  await client.hset(`campaign:${id}`, campaign as unknown as Record<string, unknown>);
+  await client.zadd("campaign-index", { score: Date.now(), member: id });
+  return campaign;
+}
+
+export async function listCampaigns(): Promise<Campaign[]> {
+  const client = getRedis();
+  if (!client) return [];
+  const ids = await client.zrange<string[]>("campaign-index", 0, -1, { rev: true });
+  if (!ids.length) return [];
+  const campaigns = await Promise.all(
+    ids.map((id) => client.hgetall<Campaign>(`campaign:${id}`))
+  );
+  return campaigns.filter((c): c is Campaign => c !== null && Object.keys(c).length > 0);
+}
+
+export async function updateCampaign(id: string, data: Partial<Campaign>): Promise<Campaign> {
+  const client = getRedis();
+  if (!client) throw new Error("Redis unavailable");
+  const existing = await client.hgetall<Campaign>(`campaign:${id}`);
+  if (!existing || Object.keys(existing).length === 0) throw new Error(`Campaign "${id}" not found`);
+  const updated = { ...existing, ...data };
+  await client.hset(`campaign:${id}`, updated as unknown as Record<string, unknown>);
+  return updated;
+}
+
+export async function deleteCampaign(id: string): Promise<void> {
+  const client = getRedis();
+  if (!client) throw new Error("Redis unavailable");
+  await client.del(`campaign:${id}`);
+  await client.zrem("campaign-index", id);
+}
+
+// ============================================================
+// Leads (scoped by tenant slug)
+// ============================================================
+
+export async function storeLead(lead: ContactLead): Promise<void> {
+  const client = getRedis();
+  if (!client) {
+    console.warn("[contact] Redis unavailable, lead not stored:", lead.id);
+    return;
+  }
+
+  const key = `lead:${lead.slug}:${lead.id}`;
+  const now = new Date().toISOString();
+
+  const dataToStore = Object.entries({
+    ...lead,
+    createdAt: now,
+  }).reduce((acc, [k, v]) => {
+    if (v !== undefined && v !== null) {
+      acc[k] = v;
+    }
+    return acc;
+  }, {} as Record<string, unknown>);
+
+  try {
+    await client.hset(key, dataToStore);
+    await client.zadd(`lead-index:${lead.slug}`, { score: Date.now(), member: lead.id });
+    // Update campaign lead count if linked
+    if (lead.source && lead.source.startsWith("camp-")) {
+      const campaign = await client.hgetall<Campaign>(`campaign:${lead.source}`);
+      if (campaign && Object.keys(campaign).length > 0) {
+        await client.hset(`campaign:${lead.source}`, {
+          ...campaign,
+          leadCount: (campaign.leadCount ?? 0) + 1,
+        } as unknown as Record<string, unknown>);
+      }
+    }
+    console.log("[contact] Stored lead:", lead.id, "for tenant:", lead.slug);
+  } catch (error) {
+    console.error("[contact] Failed to store lead:", error);
+    throw error;
+  }
+}
+
+export async function getLeadsBySlug(slug: string): Promise<ContactLead[]> {
+  const client = getRedis();
+  if (!client) return [];
+  const ids = await client.zrange<string[]>(`lead-index:${slug}`, 0, -1, { rev: true });
+  if (!ids.length) return [];
+  const leads = await Promise.all(
+    ids.map((id) => client.hgetall<ContactLead>(`lead:${slug}:${id}`))
+  );
+  return leads.filter(Boolean) as unknown as ContactLead[];
+}
+
+export async function getLeads(): Promise<ContactLead[]> {
+  const client = getRedis();
+  if (!client) return [];
+  const slugs = await client.zrange<string[]>("tenant-index", 0, -1);
+  const allLeads = await Promise.all(slugs.map((s) => getLeadsBySlug(s)));
+  return allLeads.flat().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+// ============================================================
+// Legacy compatibility
+// ============================================================
+
+export { storeLead as storeLegacyLead, getLeads as getLegacyLeads };
+
+function escapeHtml(unsafe: string): string {
+  if (!unsafe) return "";
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 export async function sendTelegramNotification(lead: ContactLead): Promise<void> {
@@ -41,14 +321,14 @@ export async function sendTelegramNotification(lead: ContactLead): Promise<void>
   const lines = [
     "🆕 新諮詢",
     "",
-    `🏠 民宿：${lead.innName}`,
-    `👤 姓名：${lead.name}`,
-    `📞 電話：${lead.phone}`,
-    lead.lineId ? `💬 LINE：${lead.lineId}` : null,
-    lead.email ? `📧 Email：${lead.email}` : null,
+    `🏠 民宿：${escapeHtml(lead.tenantName)}`,
+    `👤 姓名：${escapeHtml(lead.name)}`,
+    `📞 電話：${escapeHtml(lead.phone)}`,
+    lead.lineId ? `💬 LINE：${escapeHtml(lead.lineId)}` : null,
+    lead.email ? `📧 Email：${escapeHtml(lead.email)}` : null,
     "",
     `💬 需求：`,
-    lead.message.substring(0, 200),
+    escapeHtml(lead.message).substring(0, 500),
     "",
     `⏰ ${new Date().toLocaleString("zh-TW", { timeZone: "Asia/Taipei" })}`,
     "",
@@ -57,55 +337,16 @@ export async function sendTelegramNotification(lead: ContactLead): Promise<void>
 
   const text = lines.join("\n");
 
-  await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+  const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
   });
-}
 
-export async function storeLead(lead: ContactLead): Promise<void> {
-  const client = getRedis();
-  if (!client) {
-    console.warn("[contact] Redis unavailable, lead not stored:", lead.id);
-    return;
+  const data = await res.json();
+  if (!res.ok) {
+    console.error("[contact] Telegram API Error:", data);
+  } else {
+    console.log("[contact] Telegram Success:", data);
   }
-
-  const key = `arrive-contact-lead:${lead.id}`;
-  const now = new Date().toISOString();
-
-  const dataToStore = Object.entries({
-    ...lead,
-    createdAt: now,
-  }).reduce((acc, [k, v]) => {
-    if (v !== undefined && v !== null) {
-      acc[k] = v;
-    }
-    return acc;
-  }, {} as Record<string, any>);
-
-  await client.hset(key, dataToStore);
-
-  // Add to index for listing
-  await client.zadd("arrive-contact-leads-index", {
-    score: Date.now(),
-    member: lead.id,
-  });
-}
-
-export async function getLeads(): Promise<ContactLead[]> {
-  const client = getRedis();
-  if (!client) return [];
-
-  const ids = await client.zrange<string[]>("arrive-contact-leads-index", 0, -1, {
-    rev: true,
-  });
-
-  if (!ids.length) return [];
-
-  const leads = await Promise.all(
-    ids.map((id) => client.hgetall<ContactLead>(`arrive-contact-lead:${id}`))
-  );
-
-  return leads.filter(Boolean) as unknown as ContactLead[];
 }

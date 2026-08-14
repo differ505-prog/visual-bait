@@ -1,14 +1,20 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { brandConfig, designDials, acquisitionConfig } from "@/config/site";
+import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
+import { acquisitionConfig as staticAcq } from "@/config/site";
 import { ScrollReveal } from "./ScrollReveal";
 import { ArrowRight } from "@phosphor-icons/react";
 
+const acq = staticAcq;
+
 export function FooterCTA() {
-  const { brandName, primaryColor } = brandConfig;
-  const { acquisitionConfig: acq } = { acquisitionConfig };
-  const { MOTION_INTENSITY } = designDials;
+  const brand = useBrandConfig();
+  const design = useDesignDials();
+
+  const brandName = brand?.brandName ?? "民宿";
+  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion && MOTION_INTENSITY > 3;
 

@@ -4,12 +4,24 @@ import { storeLead, sendTelegramNotification } from "@/lib/redis";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { innName, name, phone, lineId, email, message } = body;
+
+    // Tenant slug comes from middleware (x-tenant-slug header)
+    // Fallback to 'demo' for /demo page submissions
+    const slug = req.headers.get("x-tenant-slug") ?? "demo";
+    const { name, phone, lineId, email, message } = body;
+
+    // Ensure inputs are strings and trim them
+    const safeName = String(name || "").trim();
+    const safePhone = String(phone || "").trim();
+    const safeMessage = String(message || "").trim();
+    const safeLineId = lineId ? String(lineId).trim() : undefined;
+    const safeEmail = email ? String(email).trim() : undefined;
 
     // Basic validation
-    if (!innName?.trim() || !name?.trim() || !phone?.trim() || !message?.trim()) {
+    if (!safeName || !safePhone || !safeMessage) {
+      console.warn("[contact] Validation failed: missing required fields");
       return NextResponse.json(
-        { error: "民宿名稱、姓名、電話、需求為必填欄位" },
+        { error: "姓名、電話、需求為必填欄位" },
         { status: 400 }
       );
     }
@@ -22,23 +34,26 @@ export async function POST(req: NextRequest) {
 
     const lead = {
       id: `lead-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      innName: innName.trim(),
-      name: name.trim(),
-      phone: phone.trim(),
-      lineId: lineId?.trim() || undefined,
-      email: email?.trim() || undefined,
-      message: message.trim(),
-      source: "visual-bait" as const,
+      slug,
+      tenantName: slug === "demo" ? "晴境莊（展示）" : slug,
+      name: safeName,
+      phone: safePhone,
+      lineId: safeLineId,
+      email: safeEmail,
+      message: safeMessage,
+      source: `visual-bait:${slug}`,
       createdAt: new Date().toISOString(),
     };
 
-    // Store in Redis
+    // Store in Redis (scoped by tenant)
     await storeLead(lead);
 
-    // Send Telegram notification (non-blocking)
-    sendTelegramNotification(lead).catch((err) => {
+    // Send Telegram notification
+    try {
+      await sendTelegramNotification(lead);
+    } catch (err) {
       console.error("[contact] Telegram notification failed:", err);
-    });
+    }
 
     return NextResponse.json({ success: true, id: lead.id });
   } catch (err) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
-import { brandConfig, designDials } from "@/config/site";
+import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { useState, useEffect } from "react";
 import { List, X } from "@phosphor-icons/react";
 
@@ -13,8 +13,12 @@ const navItems = [
 ];
 
 export function Navigation() {
-  const { brandName, primaryColor } = brandConfig;
-  const { MOTION_INTENSITY } = designDials;
+  const brand = useBrandConfig();
+  const design = useDesignDials();
+
+  const brandName = brand?.brandName ?? "民宿";
+  const primaryColor = brand?.primaryColor ?? "#8B7355";
+  const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
