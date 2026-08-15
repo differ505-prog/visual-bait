@@ -10,7 +10,21 @@ export function SectionRooms() {
   const brand = useBrandConfig();
   const design = useDesignDials();
 
-  const rooms = brand?.rooms?.length ? brand.rooms : brandConfig.rooms;
+  const rooms = brandConfig.rooms.map((defaultRoom, index) => {
+    // If brand.rooms exists, find the corresponding room by ID, or just map by index if IDs don't match exactly
+    const customRoom = brand?.rooms?.find(r => r.id === defaultRoom.id) || brand?.rooms?.[index];
+    
+    return {
+      ...defaultRoom,
+      ...customRoom,
+      name: customRoom?.name || defaultRoom.name,
+      description: customRoom?.description || defaultRoom.description,
+      size: customRoom?.size || defaultRoom.size,
+      capacity: customRoom?.capacity || defaultRoom.capacity,
+      tag: customRoom?.tag || defaultRoom.tag,
+      imageUrl: customRoom?.imageUrl || defaultRoom.imageUrl,
+    };
+  });
   const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
 
