@@ -140,10 +140,10 @@ export function HeroSection() {
             </p>
           </motion.div>
 
-          {/* CTA + Trust Strip 在同一列 */}
+          {/* CTA */}
           <motion.div
             variants={itemVariants}
-            className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-6"
+            className="mt-10"
           >
             <motion.a
               href="#rooms"
@@ -171,13 +171,6 @@ export function HeroSection() {
             >
               探索房型
             </motion.a>
-
-            {/* Trust Strip - 打在 CTA 同一行 */}
-            <div className="flex items-center gap-5">
-              <TrustPill label="花蓮" />
-              <TrustPill label="山嵐景觀" />
-              <TrustPill label="管家服務" />
-            </div>
           </motion.div>
         </div>
       </motion.div>
@@ -189,16 +182,5 @@ export function HeroSection() {
         民宿獲客模板
       </div>
     </section>
-  );
-}
-
-function TrustPill({ label }: { label: string }) {
-  return (
-    <span
-      className="text-white/50 text-[11px] tracking-wider uppercase"
-    >
-      <span className="hidden sm:inline">{label}</span>
-      <span className="sm:hidden">{label}</span>
-    </span>
   );
 }

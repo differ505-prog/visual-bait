@@ -22,12 +22,6 @@ export function FooterCTA() {
     >
       <div className="max-w-5xl mx-auto px-6 lg:px-12 text-center">
         <ScrollReveal>
-          <p
-            className="text-xs uppercase tracking-[0.2em] mb-5"
-            style={{ color: primaryColor }}
-          >
-            {acq?.templateBadge ?? "民宿官網模板"}
-          </p>
           <h2
             className="text-3xl md:text-5xl lg:text-6xl text-white font-light mb-6 leading-tight"
             style={{
