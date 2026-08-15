@@ -87,23 +87,6 @@ export function SectionStory() {
                     </span>
                   </div>
                 )}
-
-                {/* 示意圖浮水印 — 不論圖片是否存在都顯示 */}
-                <div
-                  className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
-                  style={{ backgroundColor: "rgba(0,0,0,0.35)" }}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.75">
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                    <span className="text-white/40 text-[11px] tracking-[0.25em] uppercase font-light">
-                      示意圖
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
           </ScrollReveal>
