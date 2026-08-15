@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
 import { brandConfig } from "@/config/site";
-import { Mail, MessageCircle } from "lucide-react";
+import { Envelope, TelegramLogo } from "@phosphor-icons/react";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
@@ -115,7 +115,7 @@ export function SectionContact() {
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="max-w-xs">
                   <p className="inline-flex items-center gap-2 text-sm font-medium text-white/50 mb-3">
-                    <MessageCircle size={16} strokeWidth={1.5} />
+                    <TelegramLogo size={16} strokeWidth={1.5} />
                     LINE 官方帳號
                   </p>
                   <p
@@ -136,7 +136,7 @@ export function SectionContact() {
                   style={{ borderColor: "#06C755" }}
                 >
                   加 LINE 聊聊需求
-                  <MessageCircle size={16} strokeWidth={1.5} />
+                  <TelegramLogo size={16} strokeWidth={1.5} />
                 </a>
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export function SectionContact() {
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white/60 transition hover:text-white"
               >
                 {email}
-                <Mail size={16} strokeWidth={1.5} />
+                <Envelope size={16} strokeWidth={1.5} />
               </a>
             </div>
           </ScrollReveal>

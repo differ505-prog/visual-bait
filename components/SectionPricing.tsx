@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
-import { ArrowRight, Check, X } from "lucide-react";
+import { Check, X } from "@phosphor-icons/react";
 
 export function SectionPricing() {
   const brand = useBrandConfig();

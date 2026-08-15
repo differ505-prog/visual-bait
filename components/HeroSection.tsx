@@ -175,12 +175,6 @@ export function HeroSection() {
         </div>
       </motion.div>
 
-      {/* 右下角：模板 Badge */}
-      <div
-        className="absolute bottom-6 right-6 lg:right-10 text-white/35 text-[10px] tracking-widest uppercase hidden md:block px-2.5 py-1 border border-white/10"
-      >
-        民宿獲客模板
-      </div>
     </section>
   );
 }
