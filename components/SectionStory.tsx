@@ -67,18 +67,14 @@ export function SectionStory() {
                 }}
               >
                 {story.imageUrl ? (
-                  <motion.div
-                    className="absolute inset-0"
+                  <motion.img
+                    src={story.imageUrl}
+                    alt="故事圖片"
+                    className="w-full h-full object-cover absolute inset-0 z-0"
+                    loading="lazy"
                     whileHover={shouldAnimate ? { scale: 1.03 } : {}}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as any }}
-                  >
-                    <img
-                      src={story.imageUrl}
-                      alt="故事圖片"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </motion.div>
+                  />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-2 relative z-0">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="0.75">

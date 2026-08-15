@@ -113,7 +113,7 @@ function RoomCard({
           <motion.img
             src={room.imageUrl}
             alt={room.name}
-            className="w-full h-full object-cover wabi-img absolute inset-0"
+            className="w-full h-full object-cover wabi-img absolute inset-0 z-0"
             loading="lazy"
             initial={shouldAnimate ? { scale: 1.06 } : false}
             animate={{ scale: 1 }}
