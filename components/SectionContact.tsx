@@ -94,12 +94,6 @@ export function SectionContact() {
         <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-16 lg:gap-20">
           {/* Left: Info */}
           <ScrollReveal direction="left">
-            <p
-              className="text-xs uppercase tracking-[0.2em] mb-4"
-              style={{ color: primaryColor }}
-            >
-              聯絡我們
-            </p>
             <h2
               className="text-3xl md:text-4xl lg:text-5xl text-white font-light mb-6 leading-tight"
               style={{

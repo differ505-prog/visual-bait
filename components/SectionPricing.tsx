@@ -70,9 +70,6 @@ export function SectionPricing() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <ScrollReveal className="mb-16 lg:mb-20 text-center">
-          <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: primaryColor }}>
-            合作方案
-          </p>
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-white font-light" style={{ fontFamily: "var(--font-serif)", letterSpacing: "0.05em" }}>
             根據你的民宿型態，找到剛好合適的方案
           </h2>
