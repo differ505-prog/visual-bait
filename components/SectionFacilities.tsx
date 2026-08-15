@@ -46,14 +46,24 @@ export function SectionFacilities() {
           </h2>
         </ScrollReveal>
 
-        {/* Facilities Grid - 4-col on desktop */}
-        <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-1 bg-white/10">
+        {/* Facilities Grid - 4-col on desktop with visual rhythm */}
+        <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-px bg-black/30">
           {facilities.map((facility, i) => {
             const Icon = iconMap[facility.icon] || Coffee;
+            const isEven = i % 2 === 1;
             return (
               <div
                 key={facility.id}
-                className="bg-black p-8 lg:p-10 flex flex-col items-start gap-4 group hover:bg-white/5 transition-colors duration-500"
+                className="p-8 lg:p-10 flex flex-col items-start gap-4 group transition-colors duration-500"
+                style={{
+                  backgroundColor: isEven ? `${primaryColor}0a` : "rgba(0,0,0,0.6)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.05)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = isEven ? `${primaryColor}0a` : "rgba(0,0,0,0.6)";
+                }}
               >
                 <div
                   className="transition-transform duration-500 group-hover:scale-110"
