@@ -42,7 +42,7 @@ export function SectionFacilities() {
             className="text-3xl md:text-4xl lg:text-5xl text-white font-light max-w-xl"
             style={{ fontFamily: "var(--font-serif)", letterSpacing: "0.05em" }}
           >
-            住進來，不需要帶什麼
+            住進來，可以享受
           </h2>
         </ScrollReveal>
 

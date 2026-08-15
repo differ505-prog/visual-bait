@@ -115,7 +115,7 @@ export function SectionContact() {
 
             {/* LINE block */}
             <div
-              className="p-6 rounded-[28px]"
+              className="p-6"
               style={{ backgroundColor: `${primaryColor}10`, border: `1px solid ${primaryColor}30` }}
             >
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -134,16 +134,16 @@ export function SectionContact() {
                     評估需求方向，確認合作節奏
                   </p>
                   <div className="mt-5">
-                    <a
-                      href={line}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-white px-6 py-3 rounded-full transition hover:brightness-110"
-                      style={{ backgroundColor: "#06C755" }}
-                    >
-                      加 LINE 聊聊需求
-                      <MessageCircle size={16} strokeWidth={1.5} />
-                    </a>
+                <a
+                  href={line}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-white px-6 py-3 border transition hover:brightness-110"
+                  style={{ borderColor: "#06C755" }}
+                >
+                  加 LINE 聊聊需求
+                  <MessageCircle size={16} strokeWidth={1.5} />
+                </a>
                   </div>
                 </div>
 
@@ -151,8 +151,8 @@ export function SectionContact() {
                   href={line}
                   target="_blank"
                   rel="noreferrer"
-                  className="mx-auto block w-full max-w-[180px] rounded-[24px] p-4 text-center transition hover:brightness-110"
-                  style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  className="mx-auto block w-full max-w-[180px] p-4 text-center transition border"
+                  style={{ backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}
                 >
                   <img
                     src="/line-qr.png"
@@ -192,10 +192,10 @@ export function SectionContact() {
           <ScrollReveal direction="right" delay={0.1}>
             {formState === "success" ? (
               <motion.div
-                className="flex flex-col items-center justify-center text-center p-12 rounded-[32px]"
+                className="flex flex-col items-center justify-center text-center p-12 border"
                 style={{
                   backgroundColor: `${primaryColor}10`,
-                  border: `1px solid ${primaryColor}30`,
+                  borderColor: `${primaryColor}30`,
                 }}
                 initial={shouldAnimate ? { opacity: 0, scale: 0.96 } : false}
                 animate={{ opacity: 1, scale: 1 }}
@@ -217,7 +217,7 @@ export function SectionContact() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="flex flex-col gap-5 p-8 rounded-[32px]"
+                className="flex flex-col gap-5 p-8"
                 style={{
                   backgroundColor: `${primaryColor}0d`,
                   border: `1px solid ${primaryColor}20`,
@@ -284,7 +284,7 @@ export function SectionContact() {
                     placeholder="請描述你的民宿現況與需求"
                     value={formData.message}
                     onChange={handleChange}
-                    className={`w-full border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none resize-none transition-colors duration-300 rounded-[20px] ${
+                    className={`w-full border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none resize-none transition-colors duration-300 ${
                       errors.message
                         ? "border-red-400/60 bg-white/5"
                         : "border-white/15 focus:border-white/40 bg-white/5"
@@ -297,7 +297,7 @@ export function SectionContact() {
 
                 {formState === "error" && feedbackMessage ? (
                   <p
-                    className="rounded-[20px] px-4 py-3 text-sm border border-red-400/30 bg-red-50/5 text-red-400"
+                    className="px-4 py-3 text-sm border border-red-400/30 text-red-400"
                     role="alert"
                   >
                     {feedbackMessage}
@@ -306,7 +306,7 @@ export function SectionContact() {
 
                 <motion.button
                   type="submit"
-                  className="mt-2 py-4 text-sm font-semibold text-white rounded-full cursor-pointer flex items-center justify-center gap-2 transition-all duration-300"
+                  className="mt-2 py-4 text-sm font-semibold text-white border cursor-pointer flex items-center justify-center gap-2 transition-all duration-300"
                   style={{ backgroundColor: primaryColor }}
                   disabled={formState === "submitting"}
                   whileHover={shouldAnimate ? { scale: 1.02 } : {}}
@@ -362,7 +362,7 @@ function FormField({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`w-full border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none transition-colors duration-300 rounded-[20px] bg-white/5 ${
+        className={`w-full border px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none transition-colors duration-300 bg-white/5 ${
           error ? "border-red-400/60" : "border-white/15 focus:border-white/40"
         }`}
       />

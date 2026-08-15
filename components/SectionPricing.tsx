@@ -86,11 +86,7 @@ export function SectionPricing() {
           {plans.map((plan, i) => (
             <ScrollReveal key={plan.name} delay={i * 0.1}>
               <motion.article
-                className={`relative flex flex-col h-full rounded-[32px] overflow-hidden ${
-                  plan.featured
-                    ? "border"
-                    : "border"
-                }`}
+                className="relative flex flex-col h-full border overflow-hidden"
                 style={{
                   borderColor: plan.featured ? primaryColor : "rgba(255,255,255,0.1)",
                   backgroundColor: plan.featured
@@ -106,7 +102,7 @@ export function SectionPricing() {
                 {/* Badge */}
                 <div className="p-6 lg:p-7 pb-0">
                   <span
-                    className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.18em]"
+                    className="inline-flex items-center gap-2 border px-3 py-1 text-xs font-semibold tracking-[0.18em]"
                     style={{
                       backgroundColor: plan.featured
                         ? `${primaryColor}15`
@@ -132,7 +128,7 @@ export function SectionPricing() {
 
                   {/* Price card */}
                   <div
-                    className="rounded-[24px] p-5 mb-6"
+                    className="p-5 mb-6"
                     style={{
                       backgroundColor: plan.featured
                         ? "rgba(255,255,255,0.06)"
@@ -183,9 +179,9 @@ export function SectionPricing() {
                 <div className="mt-auto p-6 lg:p-7 pt-0">
                   <a
                     href="#contact"
-                    className={`block w-full text-center py-4 text-sm font-semibold rounded-full transition-all duration-300 ${
+                    className={`block w-full text-center py-4 text-sm font-semibold transition-all duration-300 border ${
                       plan.secondary
-                        ? "border text-white/70 hover:bg-white/5 hover:text-white"
+                        ? "text-white/70 hover:bg-white/5 hover:text-white"
                         : "text-white"
                     }`}
                     style={
