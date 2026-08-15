@@ -70,7 +70,7 @@ export function SectionStory() {
                   <motion.img
                     src={story.imageUrl}
                     alt="故事圖片"
-                    className="w-full h-full object-cover absolute inset-0"
+                    className="w-full h-full object-cover absolute inset-0 wabi-img"
                     whileHover={shouldAnimate ? { scale: 1.03 } : {}}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as any }}
                   />
