@@ -113,15 +113,14 @@ function RoomCard({
           <motion.img
             src={room.imageUrl}
             alt={room.name}
-            className="w-full h-full object-cover wabi-img absolute inset-0 z-0"
-            loading="lazy"
+            className="w-full h-full object-cover wabi-img absolute inset-0"
             initial={shouldAnimate ? { scale: 1.06 } : false}
             animate={{ scale: 1 }}
             whileHover={shouldAnimate ? { scale: 1.04 } : {}}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const }}
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2 relative z-0">
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 relative">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1">
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <circle cx="8.5" cy="8.5" r="1.5" />
@@ -135,7 +134,7 @@ function RoomCard({
 
         {/* 暗色漸層遮罩 */}
         <div
-          className="absolute inset-0 pointer-events-none z-10"
+          className="absolute inset-0 pointer-events-none"
           style={{
             background:
               "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(10,8,6,0.92) 100%)",
@@ -143,7 +142,7 @@ function RoomCard({
         />
         {/* 暖色氛圍光暈 */}
         <div
-          className="absolute inset-0 pointer-events-none z-10"
+          className="absolute inset-0 pointer-events-none"
           style={{
             background: `radial-gradient(ellipse at 30% 40%, ${primaryColor}18 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(255,235,200,0.05) 0%, transparent 40%)`,
           }}
@@ -151,7 +150,7 @@ function RoomCard({
 
         {/* Tag */}
         <span
-          className="absolute top-4 left-4 text-[10px] tracking-[0.18em] uppercase px-3 py-1.5 text-white border z-20"
+          className="absolute top-4 left-4 text-[10px] tracking-[0.18em] uppercase px-3 py-1.5 text-white border"
           style={{
             backgroundColor: `${primaryColor}40`,
             borderColor: "rgba(255,255,255,0.3)",

@@ -70,13 +70,12 @@ export function SectionStory() {
                   <motion.img
                     src={story.imageUrl}
                     alt="故事圖片"
-                    className="w-full h-full object-cover absolute inset-0 z-0"
-                    loading="lazy"
+                    className="w-full h-full object-cover absolute inset-0"
                     whileHover={shouldAnimate ? { scale: 1.03 } : {}}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as any }}
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 relative z-0">
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 relative">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="0.75">
                       <rect x="3" y="3" width="18" height="18" rx="2" />
                       <circle cx="8.5" cy="8.5" r="1.5" />
@@ -90,7 +89,7 @@ export function SectionStory() {
 
                 {/* 暗色漸層遮罩 */}
                 <div
-                  className="absolute inset-0 pointer-events-none z-10"
+                  className="absolute inset-0 pointer-events-none"
                   style={{
                     background:
                       "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(10,8,6,0.92) 100%)",
@@ -98,7 +97,7 @@ export function SectionStory() {
                 />
                 {/* 暖色氛圍光暈 */}
                 <div
-                  className="absolute inset-0 pointer-events-none z-10"
+                  className="absolute inset-0 pointer-events-none"
                   style={{
                     background: `radial-gradient(ellipse at 30% 40%, ${primaryColor}18 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(255,235,200,0.05) 0%, transparent 40%)`,
                   }}
