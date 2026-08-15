@@ -327,12 +327,15 @@ export default function AdminPage() {
       if (form.address) payload.address = form.address;
       if (form.rooms.length > 0) payload.rooms = form.rooms;
       if (form.facilities.length > 0) payload.facilities = form.facilities;
-      if (form.storyEyebrow || form.storyHeadline || form.storyImageUrl) {
-        payload.story = {
-          eyebrow: form.storyEyebrow,
-          headline: form.storyHeadline,
-          imageUrl: form.storyImageUrl,
-        };
+      // story: 永遠建立 story 物件，imageUrl 有值就包含
+      const storyObj = {
+        eyebrow: form.storyEyebrow ?? "",
+        headline: form.storyHeadline ?? "",
+        imageUrl: form.storyImageUrl ?? "",
+      };
+      // 只要有任何一個欄位有值就送出，確保圖片 URL 不會被漏掉
+      if (storyObj.eyebrow || storyObj.headline || storyObj.imageUrl) {
+        payload.story = storyObj;
       }
       payload.active = form.active;
 
