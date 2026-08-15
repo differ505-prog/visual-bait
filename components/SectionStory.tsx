@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
 import { ScrollReveal } from "./ScrollReveal";
 import { brandConfig } from "@/config/site";
@@ -68,38 +67,20 @@ export function SectionStory() {
                 }}
               >
                 {story.imageUrl ? (
-                  <>
-                    <motion.div
-                      className="absolute inset-0"
-                      whileHover={shouldAnimate ? { scale: 1.03 } : {}}
-                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as any }}
-                    >
-                      <Image
-                        src={story.imageUrl}
-                        alt="故事圖片"
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                      />
-                    </motion.div>
-                    {/* 暗色漸層遮罩 */}
-                    <div
-                      className="absolute inset-0 pointer-events-none z-10"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(10,8,6,0.92) 100%)",
-                      }}
+                  <motion.div
+                    className="absolute inset-0"
+                    whileHover={shouldAnimate ? { scale: 1.03 } : {}}
+                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as any }}
+                  >
+                    <img
+                      src={story.imageUrl}
+                      alt="故事圖片"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
                     />
-                    {/* 暖色氛圍光暈 */}
-                    <div
-                      className="absolute inset-0 pointer-events-none z-10"
-                      style={{
-                        background: `radial-gradient(ellipse at 30% 40%, ${primaryColor}18 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(255,235,200,0.05) 0%, transparent 40%)`,
-                      }}
-                    />
-                  </>
+                  </motion.div>
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 relative z-0">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="0.75">
                       <rect x="3" y="3" width="18" height="18" rx="2" />
                       <circle cx="8.5" cy="8.5" r="1.5" />
@@ -110,6 +91,22 @@ export function SectionStory() {
                     </span>
                   </div>
                 )}
+
+                {/* 暗色漸層遮罩 */}
+                <div
+                  className="absolute inset-0 pointer-events-none z-10"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(10,8,6,0.92) 100%)",
+                  }}
+                />
+                {/* 暖色氛圍光暈 */}
+                <div
+                  className="absolute inset-0 pointer-events-none z-10"
+                  style={{
+                    background: `radial-gradient(ellipse at 30% 40%, ${primaryColor}18 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(255,235,200,0.05) 0%, transparent 40%)`,
+                  }}
+                />
               </div>
             </div>
           </ScrollReveal>
