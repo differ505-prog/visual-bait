@@ -30,6 +30,17 @@ body {
   font-family: var(--font-serif), "Noto Serif TC", Georgia, serif;
 }
 
+/* 圖片侘寂風濾鏡 — 統一所有上傳圖片調性
+   降低飽和、統一色溫，適用於房型圖、故事圖等 */
+.wabi-img {
+  filter: grayscale(20%) contrast(1.25) brightness(0.9) sepia(10%);
+  transition: filter 0.5s ease;
+}
+
+.wabi-img:hover {
+  filter: grayscale(0%) contrast(1) brightness(1) sepia(0%);
+}
+
 /* 滾動條樣式 */
 ::-webkit-scrollbar {
   width: 3px;

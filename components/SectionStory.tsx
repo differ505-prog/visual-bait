@@ -70,7 +70,7 @@ export function SectionStory() {
                   <motion.img
                     src={story.imageUrl}
                     alt="晴境莊內部空間"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover wabi-img"
                     loading="lazy"
                     whileHover={shouldAnimate ? { scale: 1.03 } : {}}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
