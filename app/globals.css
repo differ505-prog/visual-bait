@@ -30,15 +30,15 @@ body {
   font-family: var(--font-serif), "Noto Serif TC", Georgia, serif;
 }
 
-/* 圖片侘寂風濾鏡 — 統一所有上傳圖片調性
-   降低飽和、統一色溫，適用於房型圖、故事圖等 */
+/* 圖片高級感濾鏡 — 統一所有上傳圖片調性，提高廣用性
+   微降飽和、提升對比、保護高光，適用於海景、山林、現代建築等各種風格 */
 .wabi-img {
-  filter: grayscale(20%) contrast(1.25) brightness(0.9) sepia(10%);
-  transition: filter 0.5s ease;
+  filter: saturate(0.85) contrast(1.1) brightness(0.95);
+  transition: filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .wabi-img:hover {
-  filter: grayscale(0%) contrast(1) brightness(1) sepia(0%);
+  filter: saturate(1) contrast(1) brightness(1);
 }
 
 /* 滾動條樣式 */
