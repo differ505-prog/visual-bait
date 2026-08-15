@@ -39,20 +39,20 @@ export async function PUT(
       return NextResponse.json({ error: "民宿不存在" }, { status: 404 });
     }
 
-    console.log(`[api/tenants/[slug]] existing heroImageUrl:`, existing.heroImageUrl ?? "(空)");
+    // Per-field merge: only override fields that were explicitly sent
+    const storyMerge = data.story !== undefined
+      ? {
+          eyebrow: data.story.eyebrow ?? existing.story?.eyebrow ?? "",
+          headline: data.story.headline ?? existing.story?.headline ?? "",
+          imageUrl: data.story.imageUrl ?? existing.story?.imageUrl ?? "",
+        }
+      : existing.story;
 
-    // Fields the admin form sends as "only if filled"
     const merged = {
       ...existing,
       ...data,
-      // Always preserve these even if empty string was sent
-      rooms: data.rooms ?? existing.rooms,
-      facilities: data.facilities ?? existing.facilities,
-      story: data.story ?? existing.story,
-      pricing: existing.pricing,
+      story: storyMerge,
     };
-
-    console.log(`[api/tenants/[slug]] merged heroImageUrl:`, merged.heroImageUrl ?? "(空)");
 
     const tenant = await updateTenant(slug, merged);
 
