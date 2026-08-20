@@ -1,23 +1,36 @@
 "use client";
 
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
-import { useBrandConfig, useDesignDials } from "@/components/TenantProvider";
+import { useBrandConfig, useDesignDials, useTenantType } from "@/components/TenantProvider";
 import { useState, useEffect } from "react";
 import { List, X } from "@phosphor-icons/react";
 import { brandConfig } from "@/config/site";
+import { agencyConfig } from "@/config/agency";
 
-const navItems = [
+const brandNavItems = [
   { label: "房型介紹", href: "#rooms" },
   { label: "空間設施", href: "#amenities" },
   { label: "故事理念", href: "#story" },
   { label: "合作方案", href: "#pricing" },
 ];
 
-export function Navigation() {
+const agencyNavItems = [
+  { label: "服務項目", href: "#services" },
+  { label: "實際作品", href: "#agency" },
+  { label: "合作流程", href: "#workflow" },
+  { label: "合作方案", href: "#pricing" },
+];
+
+export function Navigation({ tenantType }: { tenantType?: "brand" | "agency" }) {
   const brand = useBrandConfig();
   const design = useDesignDials();
+  const tenantTypeCtx = useTenantType();
+  const activeType = tenantType ?? tenantTypeCtx;
+
   const brandName = brand?.brandName || brandConfig.brandName;
   const primaryColor = brand?.primaryColor || brandConfig.primaryColor;
+  const navItems = activeType === "agency" ? agencyNavItems : brandNavItems;
+  const isAgency = activeType === "agency";
   const MOTION_INTENSITY = design?.MOTION_INTENSITY ?? 7;
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -81,9 +94,16 @@ export function Navigation() {
         {/* Logo */}
         <a
           href="#"
-          className="text-white text-lg font-serif tracking-widest"
+          className="text-white text-base font-serif tracking-widest"
         >
-          {brandName}
+          {isAgency ? (
+            <span>
+              <span className="hidden sm:inline">{brandName}</span>
+              <span className="sm:hidden text-sm">Arrivestudio</span>
+            </span>
+          ) : (
+            brandName
+          )}
         </a>
 
         {/* Desktop Nav */}
@@ -129,7 +149,7 @@ export function Navigation() {
             }
             whileTap={shouldAnimate ? { scale: 0.97 } : {}}
           >
-            免費諮詢
+            {isAgency ? "聊聊需求" : "免費諮詢"}
           </motion.a>
         </div>
 
@@ -201,7 +221,7 @@ export function Navigation() {
                 style={{ borderColor: "rgba(255,255,255,0.3)" }}
                 onClick={() => setMobileOpen(false)}
               >
-                免費諮詢
+                {isAgency ? "聊聊需求" : "免費諮詢"}
               </a>
             </div>
           </motion.div>

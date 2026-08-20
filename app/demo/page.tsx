@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/HeroSection";
 import { SectionRooms } from "@/components/SectionRooms";
 import { SectionFacilities } from "@/components/SectionFacilities";
 import { SectionStory } from "@/components/SectionStory";
+import { SectionAgencyShowcase } from "@/components/SectionAgencyShowcase";
 import { SectionPricing } from "@/components/SectionPricing";
 import { SectionContact } from "@/components/SectionContact";
 import { FooterCTA, Footer } from "@/components/FooterCTA";
@@ -30,6 +31,7 @@ export default function DemoPage() {
         <SectionRooms />
         <SectionFacilities />
         <SectionStory />
+        <SectionAgencyShowcase />
         <SectionPricing />
         <SectionContact />
         <FooterCTA />
