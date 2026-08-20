@@ -177,7 +177,6 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
-        scale: 2,
         backgroundColor: "#ffffff",
       });
       const link = document.createElement("a");
@@ -202,7 +201,6 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
-        scale: 2,
         backgroundColor: "#ffffff",
       });
       const blob = await new Promise<Blob>((resolve, reject) => {
