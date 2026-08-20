@@ -1,8 +1,7 @@
-import { getRedis } from "@/lib/redis";
+import { Redis } from "@upstash/redis";
 import { NextRequest, NextResponse } from "next/server";
 
 const TEMPLATE_KEY = "message-template";
-const TEMPLATE_INDEX = "message-template-index";
 
 const DEFAULT_TEMPLATE = `{{brandName}} 您好 🌿
 
@@ -21,16 +20,21 @@ const DEFAULT_TEMPLATE = `{{brandName}} 您好 🌿
 如果有興趣，歡迎回覆這則訊息，
 我再進一步說明給您 😊`;
 
+function createRedis(): Redis | null {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  return new Redis({ url, token });
+}
+
 async function ensureTemplate(): Promise<string> {
-  const redis = getRedis();
+  const redis = createRedis();
   if (!redis) return DEFAULT_TEMPLATE;
 
   try {
     const existing = await redis.get<string>(TEMPLATE_KEY);
     if (existing) return existing;
-
     await redis.set(TEMPLATE_KEY, DEFAULT_TEMPLATE);
-    await redis.zadd(TEMPLATE_INDEX, { score: Date.now(), member: "default" });
     return DEFAULT_TEMPLATE;
   } catch {
     return DEFAULT_TEMPLATE;
@@ -54,7 +58,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "訊息內容不能為空" }, { status: 400 });
     }
 
-    const redis = getRedis();
+    const redis = createRedis();
     if (redis) {
       await redis.set(TEMPLATE_KEY, template);
     }
