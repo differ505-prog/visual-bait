@@ -427,8 +427,7 @@ export default function MessagesPage() {
                   <div style={{ position: "relative", width: "375px", height: "720px", overflow: "hidden" }}>
                     {/* Hero Image */}
                     {selected.heroImageUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={selected.heroImageUrl} crossOrigin="anonymous" style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "720px", objectFit: "cover", display: "block" }} alt="hero" />
+                      <div style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "720px", backgroundImage: `url(${selected.heroImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }} />
                     ) : (
                       <div style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "720px", background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)` }} />
                     )}
