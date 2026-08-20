@@ -410,66 +410,94 @@ export default function MessagesPage() {
                     top: 0,
                     width: "375px",
                     height: "812px",
-                    backgroundColor: "#fff",
-                    fontFamily: "system-ui, sans-serif",
+                    backgroundColor: "#0a0806",
+                    fontFamily: "var(--font-sans), system-ui, sans-serif",
                     overflow: "hidden",
                     display: "block",
                   }}
                 >
                   {/* Fake Safari Address Bar */}
-                  <div style={{ background: "#f8f8f8", borderBottom: "1px solid #e0e0e0", padding: "12px 16px 8px", textAlign: "center" }}>
+                  <div style={{ background: "#f8f8f8", borderBottom: "1px solid #e0e0e0", padding: "12px 16px 8px", textAlign: "center", position: "relative", zIndex: 50 }}>
                      <div style={{ background: "#e8e8e8", borderRadius: 8, padding: "8px", fontSize: 13, color: "#333", display: "inline-block", width: "100%", boxSizing: "border-box" }}>
                         <span style={{ fontSize: 11, color: "#888", marginRight: 6 }}>🔒</span>
                         <span>visual-bait.vercel.app/{selected.slug}</span>
                      </div>
                   </div>
 
-                  {/* Webpage Header */}
-                  <div style={{ padding: "16px 20px", background: "white", borderBottom: "1px solid #f0f0f0", position: "relative" }}>
-                    <div style={{ fontWeight: 800, fontSize: 18, color: selected.primaryColor || "#333", letterSpacing: "1px" }}>
-                      {selected.brandName}
-                    </div>
-                    <div style={{ width: 24, height: 2, background: "#333", position: "absolute", right: 20, top: 26 }}>
-                       <div style={{ width: 24, height: 2, background: "#333", position: "absolute", top: -6 }} />
-                       <div style={{ width: 24, height: 2, background: "#333", position: "absolute", top: 6 }} />
-                    </div>
-                  </div>
-
-                  {/* Hero Image with Overlay */}
-                  <div style={{ position: "relative", width: "375px", height: "450px", overflow: "hidden" }}>
+                  <div style={{ position: "relative", width: "375px", height: "720px", overflow: "hidden" }}>
+                    {/* Hero Image */}
                     {selected.heroImageUrl ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={selected.heroImageUrl} crossOrigin="anonymous" style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "450px", objectFit: "cover", display: "block" }} alt="hero" />
+                      <img src={selected.heroImageUrl} crossOrigin="anonymous" style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "720px", objectFit: "cover", display: "block" }} alt="hero" />
                     ) : (
-                      <div style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "450px", background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)` }} />
+                      <div style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "720px", background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)` }} />
                     )}
-                    {/* Gradient overlay */}
-                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)" }} />
+
+                    {/* Mask matching actual HeroSection */}
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, rgba(10,8,6,0.92) 100%)" }} />
                     
-                    {/* Slogan */}
-                    <div style={{ position: "absolute", bottom: 40, left: 24, right: 24, zIndex: 10 }}>
-                       {selected.slogan && (
-                          <div style={{ color: "white", fontSize: 28, fontWeight: 700, marginBottom: 12, lineHeight: 1.3, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
-                            {selected.slogan}
-                          </div>
-                       )}
-                       <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 15, letterSpacing: "0.5px" }}>
-                         {selected.brandName}・為您準備的美好假期
+                    {/* Bottom fade mask */}
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "300px", background: "linear-gradient(to top, #0a0806 0%, transparent 100%)" }} />
+                    
+                    {/* Fake Transparent Navigation */}
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, padding: "20px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 20 }}>
+                       <div style={{ color: "white", fontSize: 20, fontWeight: 300, fontFamily: "var(--font-serif), serif", letterSpacing: "2px" }}>
+                         {selected.brandName}
+                       </div>
+                       {/* Hamburger Menu Icon */}
+                       <div style={{ width: 24, height: 2, background: "white", position: "relative" }}>
+                         <div style={{ width: 24, height: 2, background: "white", position: "absolute", top: -6 }} />
+                         <div style={{ width: 24, height: 2, background: "white", position: "absolute", top: 6 }} />
                        </div>
                     </div>
-                  </div>
 
-                  {/* Content section */}
-                  <div style={{ padding: "40px 24px", background: "white", height: "230px" }}>
-                     <div style={{ fontSize: 20, fontWeight: 700, color: "#222", marginBottom: 16 }}>關於我們</div>
-                     <div style={{ width: 40, height: 3, background: selected.primaryColor || "#8B7355", marginBottom: 20 }} />
-                     <div style={{ fontSize: 14, color: "#666", lineHeight: 1.8 }}>
-                       在{selected.brandName}，我們致力於為您打造一個舒適、放鬆的空間。無論是家庭旅遊或是好友相聚，這裡都是您的最佳選擇。
-                     </div>
-                     
-                     <div style={{ marginTop: 24, background: selected.primaryColor || "#8B7355", color: "white", padding: "14px", borderRadius: 8, textAlign: "center", fontWeight: 600 }}>
-                        立即預訂
-                     </div>
+                    {/* Text content replicating HeroSection */}
+                    <div style={{ position: "absolute", bottom: 40, left: 24, right: 24, zIndex: 10 }}>
+                       <div
+                         style={{
+                           color: "white",
+                           fontSize: "36px",
+                           fontWeight: 300,
+                           marginBottom: "16px",
+                           fontFamily: "var(--font-serif), serif",
+                           letterSpacing: "0.08em",
+                           textShadow: "0 4px 40px rgba(0,0,0,0.5)",
+                           lineHeight: 1.2
+                         }}
+                       >
+                         {selected.brandName}
+                       </div>
+                       {selected.slogan && (
+                         <div
+                           style={{
+                             color: "rgba(255,255,255,0.7)",
+                             fontSize: "14px",
+                             fontWeight: 300,
+                             letterSpacing: "0.2em",
+                             textShadow: "0 2px 20px rgba(0,0,0,0.5)",
+                             marginBottom: "40px"
+                           }}
+                         >
+                           {selected.slogan}
+                         </div>
+                       )}
+
+                       {/* CTA Button */}
+                       <div
+                         style={{
+                           display: "inline-block",
+                           padding: "12px 32px",
+                           fontSize: "13px",
+                           letterSpacing: "0.1em",
+                           textTransform: "uppercase",
+                           color: "white",
+                           border: "1px solid rgba(255,255,255,0.4)",
+                           backgroundColor: `${selected.primaryColor || "#8B7355"}40`,
+                         }}
+                       >
+                         探索房型
+                       </div>
+                    </div>
                   </div>
                 </div>
 
