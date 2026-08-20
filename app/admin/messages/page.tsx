@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { TenantConfig } from "@/lib/redis";
-import { Search, Copy, Check, MessageSquare, Edit3, Eye } from "lucide-react";
+import { Search, Copy, Check, MessageSquare, Edit3, Eye, Camera, ChevronDown } from "lucide-react";
+import html2canvas from "html2canvas";
 
 const TEMPLATE_KEY = "message-template";
 
@@ -69,6 +70,9 @@ export default function MessagesPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const [screenshotting, setScreenshotting] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -99,6 +103,18 @@ export default function MessagesPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!showDropdown) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showDropdown]);
 
   const showToast = (msg: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -147,6 +163,59 @@ export default function MessagesPage() {
   const copyHighlighted = () => {
     if (!selected) return;
     copyForTenant(selected);
+  };
+
+  const takeScreenshot = async () => {
+    if (!selected) return;
+    setScreenshotting(true);
+    setShowDropdown(false);
+    try {
+      const target = document.getElementById(`site-preview-${selected.slug}`);
+      if (!target) throw new Error("Preview element not found");
+      const canvas = await html2canvas(target, {
+        useCORS: true,
+        allowTaint: false,
+        scale: 2,
+      });
+      const link = document.createElement("a");
+      link.download = `${selected.slug}-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      showToast(`已下載 ${selected.brandName} 截圖`);
+    } catch {
+      showToast("截圖失敗，請稍後再試");
+    } finally {
+      setScreenshotting(false);
+    }
+  };
+
+  const copyWithScreenshot = async () => {
+    if (!selected) return;
+    setScreenshotting(true);
+    setShowDropdown(false);
+    try {
+      const target = document.getElementById(`site-preview-${selected.slug}`);
+      if (!target) throw new Error("Preview element not found");
+      const canvas = await html2canvas(target, {
+        useCORS: true,
+        allowTaint: false,
+        scale: 2,
+      });
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("blob failed"))), "image/png");
+      });
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob }),
+        new ClipboardItem({ "text/plain": new Blob([renderTemplate(localTemplate, selected)], { type: "text/plain" }) }),
+      ] as ClipboardItem[]);
+      setCopiedSlug(selected.slug);
+      showToast(`已複製訊息 + 截圖`);
+      setTimeout(() => setCopiedSlug(null), 2000);
+    } catch {
+      showToast("截圖失敗，請稍後再試");
+    } finally {
+      setScreenshotting(false);
+    }
   };
 
   return (
@@ -276,19 +345,167 @@ export default function MessagesPage() {
                       <p className="text-xs text-gray-400">/{selected.slug}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={copyHighlighted}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
-                  >
-                    {copiedSlug === selected.slug ? <Check size={14} /> : <Copy size={14} />}
-                    {copiedSlug === selected.slug ? "已複製" : "複製訊息"}
-                  </button>
+                  {/* Action buttons with dropdown */}
+                  <div className="relative flex items-center gap-2" ref={dropdownRef}>
+                    <button
+                      onClick={copyHighlighted}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
+                    >
+                      {copiedSlug === selected.slug ? <Check size={14} /> : <Copy size={14} />}
+                      {copiedSlug === selected.slug ? "已複製" : "複製訊息"}
+                    </button>
+
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowDropdown((v) => !v)}
+                        disabled={screenshotting}
+                        className="flex items-center gap-1 px-2.5 py-2 bg-white hover:bg-gray-50 text-gray-600 text-sm border border-gray-200 rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                        title="更多操作"
+                      >
+                        {screenshotting ? (
+                          <span className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin block" />
+                        ) : (
+                          <Camera size={14} />
+                        )}
+                        <ChevronDown size={12} />
+                      </button>
+
+                      {showDropdown && (
+                        <div className="absolute right-0 top-full mt-1.5 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden w-52">
+                          <button
+                            onClick={takeScreenshot}
+                            disabled={screenshotting}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                          >
+                            <Camera size={14} className="text-gray-400" />
+                            下載網站截圖
+                          </button>
+                          <div className="border-t border-gray-100" />
+                          <button
+                            onClick={copyWithScreenshot}
+                            disabled={screenshotting}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                          >
+                            <Copy size={14} className="text-gray-400" />
+                            複製訊息 + 圖片
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                   <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-mono">
                     {preview}
                   </pre>
+                </div>
+
+                {/* Hidden site preview for html2canvas */}
+                <div
+                  id={`site-preview-${selected.slug}`}
+                  style={{
+                    position: "fixed",
+                    left: "-9999px",
+                    top: 0,
+                    width: "375px",
+                    backgroundColor: selected.primaryColor ? `${selected.primaryColor}08` : "#f9f7f4",
+                  }}
+                >
+                  <div
+                    style={{
+                      background: "white",
+                      borderRadius: 12,
+                      padding: "24px 20px",
+                      margin: "16px",
+                      boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+                      fontFamily: "system-ui, sans-serif",
+                    }}
+                  >
+                    {/* Header */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                      <div
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: "50%",
+                          background: selected.primaryColor || "#8B7355",
+                          color: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 18,
+                          fontWeight: 700,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {selected.brandName.charAt(0)}
+                      </div>
+                      <div>
+                        <p style={{ fontWeight: 700, fontSize: 15, color: "#111" }}>{selected.brandName}</p>
+                        <p style={{ fontSize: 12, color: "#999" }}>築時數位精選民宿</p>
+                      </div>
+                    </div>
+
+                    {/* Hero image placeholder */}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: 160,
+                        borderRadius: 10,
+                        background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, ${selected.secondaryColor || "#c4a882"}44)`,
+                        marginBottom: 16,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <span style={{ color: selected.primaryColor || "#8B7355", fontSize: 13, opacity: 0.6 }}>
+                        示意圖
+                      </span>
+                    </div>
+
+                    {/* Slogan */}
+                    {selected.slogan && (
+                      <p
+                        style={{
+                          fontSize: 14,
+                          color: selected.primaryColor || "#8B7355",
+                          fontWeight: 600,
+                          marginBottom: 10,
+                          fontStyle: "italic",
+                        }}
+                      >
+                        「{selected.slogan}」
+                      </p>
+                    )}
+
+                    {/* Brand intro */}
+                    <p style={{ fontSize: 13, color: "#444", lineHeight: 1.7, marginBottom: 14 }}>
+                      {selected.brandName}，值得被更多人看見的特色民宿。我們為您打造專屬的一頁式網站，
+                      提升品牌形象，讓客人更容易預訂住房。
+                    </p>
+
+                    {/* CTA */}
+                    <div
+                      style={{
+                        background: selected.primaryColor || "#8B7355",
+                        color: "white",
+                        borderRadius: 10,
+                        padding: "12px 16px",
+                        textAlign: "center",
+                        fontWeight: 600,
+                        fontSize: 14,
+                      }}
+                    >
+                      查看完整網站 →
+                    </div>
+
+                    {/* Footer */}
+                    <p style={{ fontSize: 11, color: "#bbb", textAlign: "center", marginTop: 12 }}>
+                      由築時數位打造 · {buildUrl(selected.slug)}
+                    </p>
+                  </div>
                 </div>
 
                 <p className="text-center text-xs text-gray-400">
