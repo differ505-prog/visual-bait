@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { TenantConfig } from "@/lib/redis";
-import { Plus, ExternalLink, Trash2, Edit2, X, Check, RefreshCw } from "lucide-react";
+import { TenantConfig, getTenantTrackingStatus } from "@/lib/redis";
+import { Plus, ExternalLink, Trash2, Edit2, X, Check, RefreshCw, AlertTriangle, Zap, Moon, Power } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -40,6 +40,11 @@ interface TenantForm {
   pricingEyebrow: string;
   pricingHeadline: string;
   active: boolean;
+  // ─── Tracking ───────────────────────────────
+  sentAt?: string;
+  lastLeadAt?: string;
+  status?: "idle" | "active" | "followup" | "dormant" | "disabled";
+  resetOnReply?: boolean;
 }
 
 const emptyForm = (): TenantForm => ({
@@ -60,6 +65,10 @@ const emptyForm = (): TenantForm => ({
   pricingEyebrow: "",
   pricingHeadline: "",
   active: true,
+  sentAt: undefined,
+  lastLeadAt: undefined,
+  status: undefined,
+  resetOnReply: true,
 });
 
 // ─── Room Editor ─────────────────────────────────────────────────────
@@ -248,6 +257,215 @@ function Field({
   );
 }
 
+// ─── Tracking Badge ─────────────────────────────────────────────────────
+
+const TRACKING_DAYS = 7;
+
+function TrackingBadge({ tenant }: { tenant: TenantConfig }) {
+  const { computedStatus, daysSinceSent, daysSinceLead, isOverdue } = getTenantTrackingStatus(tenant);
+  const progress = Math.min(daysSinceLead / TRACKING_DAYS, 1);
+  const circumference = 2 * Math.PI * 10; // r=10
+  const strokeDashoffset = circumference * (1 - progress);
+
+  if (computedStatus === "idle") {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-gray-400">
+        <span className="w-2 h-2 rounded-full bg-gray-300" />
+        <span>未出擊</span>
+      </div>
+    );
+  }
+
+  if (computedStatus === "disabled") {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-gray-400">
+        <span className="w-2 h-2 rounded-full bg-gray-600" />
+        <span>已停用</span>
+      </div>
+    );
+  }
+
+  if (computedStatus === "dormant") {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+        <span className="w-2 h-2 rounded-full bg-gray-400" />
+        <span>休眠中</span>
+      </div>
+    );
+  }
+
+  const color = isOverdue ? "text-amber-600" : "text-emerald-600";
+  const dotColor = isOverdue ? "bg-amber-500" : "bg-emerald-500";
+  const trackColor = isOverdue ? "text-amber-200" : "text-emerald-200";
+  const strokeColor = isOverdue ? "#d97706" : "#059669";
+
+  return (
+    <div className={`flex items-center gap-1.5 ${color}`}>
+      <span className={`w-2 h-2 rounded-full ${dotColor}`} />
+      <span className="text-xs font-medium">{daysSinceLead}天</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" className="-mr-1">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" className={`${trackColor}`} />
+        <circle
+          cx="12" cy="12" r="10" fill="none"
+          stroke={strokeColor} strokeWidth="2"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          transform="rotate(-90 12 12)"
+        />
+      </svg>
+    </div>
+  );
+}
+
+// ─── Tracking Panel (inside edit modal) ─────────────────────────────────
+
+function TrackingPanel({
+  form,
+  onChange,
+  onAction,
+}: {
+  form: TenantForm;
+  onChange: (patch: Partial<TenantForm>) => void;
+  onAction: (action: "markSent" | "reset" | "dormant" | "disabled" | "restore") => void;
+}) {
+  const tracking = getTenantTrackingStatus({
+    sentAt: form.sentAt,
+    lastLeadAt: form.lastLeadAt,
+    status: form.status,
+  });
+
+  const statusConfig: Record<string, { color: string; bg: string; icon: React.ReactNode; label: string }> = {
+    idle: { color: "text-gray-500", bg: "bg-gray-100", icon: <Zap size={14} />, label: "未出擊" },
+    active: { color: "text-emerald-700", bg: "bg-emerald-50", icon: <Zap size={14} />, label: "活躍中" },
+    followup: { color: "text-amber-700", bg: "bg-amber-50", icon: <AlertTriangle size={14} />, label: "待追蹤" },
+    dormant: { color: "text-gray-500", bg: "bg-gray-100", icon: <Moon size={14} />, label: "休眠中" },
+    disabled: { color: "text-gray-400", bg: "bg-gray-200", icon: <Power size={14} />, label: "已停用" },
+  };
+
+  const current = statusConfig[tracking.computedStatus] ?? statusConfig.idle;
+
+  return (
+    <section>
+      <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+        出擊追蹤
+      </h3>
+
+      <div className="border border-gray-200 rounded-xl p-4 space-y-4 bg-gray-50">
+        {/* Status row */}
+        <div className="flex items-center justify-between">
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${current.color} ${current.bg}`}>
+            {current.icon}
+            {current.label}
+            {tracking.computedStatus === "active" && (
+              <span className="ml-1 text-xs opacity-70">· 已傳送 {tracking.daysSinceSent} 天</span>
+            )}
+            {tracking.computedStatus === "followup" && (
+              <span className="ml-1 text-xs opacity-70">· {tracking.daysSinceLead} 天無新回覆</span>
+            )}
+          </div>
+
+          {/* Progress bar */}
+          {tracking.computedStatus !== "idle" && tracking.computedStatus !== "dormant" && tracking.computedStatus !== "disabled" && (
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span>{tracking.daysSinceLead}/{TRACKING_DAYS} 天</span>
+              <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${tracking.isOverdue ? "bg-amber-500" : "bg-emerald-500"}`}
+                  style={{ width: `${Math.min((tracking.daysSinceLead / TRACKING_DAYS) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Reset on reply toggle */}
+        {tracking.computedStatus !== "idle" && tracking.computedStatus !== "dormant" && tracking.computedStatus !== "disabled" && (
+          <div className="flex items-center justify-between border-t border-gray-200 pt-3">
+            <div>
+              <p className="text-xs font-medium text-gray-700">收到回覆時</p>
+              <p className="text-xs text-gray-400">控制新回覆是否重置倒數</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onChange({ resetOnReply: false })}
+                className={`text-xs px-3 py-1 rounded-full border transition-colors ${form.resetOnReply === false ? "bg-gray-800 text-white border-gray-800" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"}`}
+              >
+                不重置
+              </button>
+              <button
+                onClick={() => onChange({ resetOnReply: true })}
+                className={`text-xs px-3 py-1 rounded-full border transition-colors ${form.resetOnReply === true ? "bg-gray-800 text-white border-gray-800" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"}`}
+              >
+                重置
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 border-t border-gray-200 pt-3">
+          {tracking.computedStatus === "idle" && (
+            <button
+              onClick={() => onAction("markSent")}
+              className="flex items-center gap-1.5 text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium"
+            >
+              <Zap size={13} />
+              標記已傳送
+            </button>
+          )}
+
+          {(tracking.computedStatus === "active" || tracking.computedStatus === "followup") && (
+            <>
+              <button
+                onClick={() => onAction("markSent")}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-white border border-gray-200 hover:border-gray-400 text-gray-600 rounded-lg transition-colors"
+              >
+                <RefreshCw size={12} />
+                重置計時
+              </button>
+              <button
+                onClick={() => onAction("dormant")}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-white border border-gray-200 hover:border-gray-400 text-gray-600 rounded-lg transition-colors"
+              >
+                <Moon size={12} />
+                標記休眠
+              </button>
+              <button
+                onClick={() => onAction("disabled")}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-white border border-red-200 hover:border-red-400 text-red-500 rounded-lg transition-colors"
+              >
+                <Power size={12} />
+                停用
+              </button>
+            </>
+          )}
+
+          {tracking.computedStatus === "dormant" && (
+            <button
+              onClick={() => onAction("restore")}
+              className="flex items-center gap-1.5 text-xs px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium"
+            >
+              <Zap size={13} />
+              恢復追蹤
+            </button>
+          )}
+
+          {tracking.computedStatus === "disabled" && (
+            <button
+              onClick={() => onAction("restore")}
+              className="flex items-center gap-1.5 text-xs px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg transition-colors font-medium"
+            >
+              恢復民宿
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────
 export default function AdminPage() {
   const [tenants, setTenants] = useState<TenantConfig[]>([]);
@@ -306,6 +524,10 @@ export default function AdminPage() {
       pricingEyebrow: t.pricing?.eyebrow ?? "",
       pricingHeadline: t.pricing?.headline ?? "",
       active: t.active,
+      sentAt: t.sentAt,
+      lastLeadAt: t.lastLeadAt,
+      status: t.status,
+      resetOnReply: t.resetOnReply ?? true,
     });
     setEditingSlug(t.slug);
     setShowForm(true);
@@ -338,6 +560,13 @@ export default function AdminPage() {
         payload.story = storyObj;
       }
       payload.active = form.active;
+      // Tracking fields (only set if editing, not on create)
+      if (editingSlug) {
+        if (form.sentAt !== undefined) payload.sentAt = form.sentAt;
+        if (form.lastLeadAt !== undefined) payload.lastLeadAt = form.lastLeadAt;
+        if (form.status !== undefined) payload.status = form.status;
+        if (form.resetOnReply !== undefined) payload.resetOnReply = form.resetOnReply;
+      }
 
       let res: Response;
       if (editingSlug) {
@@ -396,6 +625,36 @@ export default function AdminPage() {
     }
   };
 
+  const handleTrackingAction = async (slug: string, action: "markSent" | "reset" | "dormant" | "disabled" | "restore") => {
+    const now = new Date().toISOString();
+    let payload: Record<string, unknown> = {};
+
+    if (action === "markSent" || action === "reset") {
+      payload = { sentAt: now, lastLeadAt: now, status: "active" };
+    } else if (action === "dormant") {
+      payload = { status: "dormant" };
+    } else if (action === "disabled") {
+      payload = { status: "disabled" };
+    } else if (action === "restore") {
+      payload = { status: "active" };
+    }
+
+    try {
+      const res = await fetch(`/api/tenants/${slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        fetchTenants();
+      } else {
+        showMessage("error", "操作失敗");
+      }
+    } catch {
+      showMessage("error", "網路錯誤");
+    }
+  };
+
   const setField = (key: keyof TenantForm) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
@@ -425,6 +684,33 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Followup alert */}
+      {(() => {
+        const followupTenants = tenants.filter(
+          (t) => getTenantTrackingStatus(t).computedStatus === "followup"
+        );
+        if (followupTenants.length === 0) return null;
+        return (
+          <div className="mb-6 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-amber-800">
+              <AlertTriangle size={15} className="text-amber-500" />
+              <span className="font-medium">待追蹤民宿</span>
+              <span className="text-amber-600">共 {followupTenants.length} 筆，已超過 7 天無新回覆</span>
+            </div>
+            <button
+              onClick={() => {
+                // Scroll to first followup card
+                const el = document.querySelector(".border-amber-300");
+                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+              className="text-xs text-amber-700 hover:text-amber-900 font-medium underline underline-offset-2"
+            >
+              查看 →
+            </button>
+          </div>
+        );
+      })()}
+
       {/* Message */}
       {message && (
         <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium ${message.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
@@ -444,59 +730,75 @@ export default function AdminPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {tenants.map((t) => (
-            <div key={t.slug} className="bg-white border border-gray-200 rounded-xl p-5 flex items-start gap-4 shadow-sm">
-              {/* Hero thumbnail */}
+          {tenants.map((t) => {
+            const tracking = getTenantTrackingStatus(t);
+            const isFollowup = tracking.computedStatus === "followup";
+            return (
               <div
-                className="w-24 h-16 rounded-lg bg-gray-100 bg-cover bg-center shrink-0"
-                style={{ backgroundImage: t.heroImageUrl ? `url(${t.heroImageUrl})` : undefined }}
-              />
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-gray-900 truncate">{t.brandName}</h3>
-                  {!t.active && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-400 border border-gray-200">
-                      已停用
-                    </span>
-                  )}
+                key={t.slug}
+                className={`bg-white border rounded-xl p-5 flex items-start gap-4 shadow-sm transition-colors ${isFollowup ? "border-amber-300 bg-amber-50/30" : "border-gray-200"}`}
+              >
+                {/* Hero thumbnail */}
+                <div
+                  className="w-24 h-16 rounded-lg bg-gray-100 bg-cover bg-center shrink-0"
+                  style={{ backgroundImage: t.heroImageUrl ? `url(${t.heroImageUrl})` : undefined }}
+                />
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 truncate">{t.brandName}</h3>
+                    {!t.active && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-400 border border-gray-200">
+                        已停用
+                      </span>
+                    )}
+                    {isFollowup && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                        待追蹤
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mb-0.5">
+                    /{t.slug} · {t.slogan || "尚無標語"}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {t.rooms.length} 房型 · {t.facilities.length} 設施
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mb-0.5">
-                  /{t.slug} · {t.slogan || "尚無標語"}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {t.rooms.length} 房型 · {t.facilities.length} 設施
-                </p>
+                {/* Tracking badge */}
+                <div className="shrink-0">
+                  <TrackingBadge tenant={t} />
+                </div>
+                {/* Actions */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <a
+                    href={`/${t.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                    title="查看網站"
+                  >
+                    <ExternalLink size={15} />
+                  </a>
+                  <button
+                    onClick={() => openEdit(t)}
+                    className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                    title="編輯"
+                  >
+                    <Edit2 size={15} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(t.slug)}
+                    disabled={deletingSlug === t.slug}
+                    className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                    title="刪除"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
-              {/* Actions */}
-              <div className="flex items-center gap-1 shrink-0">
-                <a
-                  href={`/${t.slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-                  title="查看網站"
-                >
-                  <ExternalLink size={15} />
-                </a>
-                <button
-                  onClick={() => openEdit(t)}
-                  className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                  title="編輯"
-                >
-                  <Edit2 size={15} />
-                </button>
-                <button
-                  onClick={() => handleDelete(t.slug)}
-                  disabled={deletingSlug === t.slug}
-                  className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
-                  title="刪除"
-                >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -599,6 +901,28 @@ export default function AdminPage() {
               </section>
 
               {/* Active toggle */}
+              <TrackingPanel
+                form={form}
+                onChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
+                onAction={(action) => {
+                  if (editingSlug) {
+                    // Update local form state for visual feedback
+                    const now = new Date().toISOString();
+                    if (action === "markSent" || action === "reset") {
+                      setForm((f) => ({ ...f, sentAt: now, lastLeadAt: now, status: "active" as const }));
+                    } else if (action === "dormant") {
+                      setForm((f) => ({ ...f, status: "dormant" as const }));
+                    } else if (action === "disabled") {
+                      setForm((f) => ({ ...f, status: "disabled" as const }));
+                    } else if (action === "restore") {
+                      setForm((f) => ({ ...f, status: "active" as const }));
+                    }
+                    // Persist immediately
+                    handleTrackingAction(editingSlug, action);
+                  }
+                }}
+              />
+
               <section>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div

@@ -21,6 +21,9 @@ function getRedis(): Redis | null {
 // Types
 // ============================================================
 
+// ─── Tenant Tracking Status ─────────────────────────────────────────
+export type TenantTrackingStatus = "idle" | "active" | "followup" | "dormant" | "disabled";
+
 export interface TenantConfig {
   slug: string;
   brandName: string;
@@ -76,6 +79,11 @@ export interface TenantConfig {
   expiresAt: string; // ISO date string, empty = never expires
   active: boolean;
   createdAt: string;
+  // ─── Tracking fields ────────────────────────────
+  sentAt?: string;         // ISO, when admin marked as "sent"
+  lastLeadAt?: string;     // ISO, last lead received
+  status?: TenantTrackingStatus;
+  resetOnReply?: boolean;  // true = reset timer on new lead; false = don't reset
 }
 
 export interface Campaign {
@@ -280,6 +288,22 @@ export async function storeLead(lead: ContactLead): Promise<void> {
   try {
     await client.hset(key, dataToStore);
     await client.zadd(`lead-index:${lead.slug}`, { score: Date.now(), member: lead.id });
+
+    // ─── Update tenant lastLeadAt ────────────────────────────────────
+    const tenant = await client.hgetall(`tenant:${lead.slug}`) as unknown as { sentAt?: string; lastLeadAt?: string; resetOnReply?: boolean; status?: TenantTrackingStatus } | null;
+    if (tenant && Object.keys(tenant).length > 0) {
+      const shouldReset = tenant.resetOnReply !== false; // default true
+      const updates: Record<string, unknown> = { lastLeadAt: now };
+
+      if (shouldReset && tenant.sentAt) {
+        // Reset sentAt to now — fresh 7-day window
+        updates.sentAt = now;
+        updates.status = "active";
+      }
+
+      await client.hset(`tenant:${lead.slug}`, updates);
+    }
+
     // Update campaign lead count if linked
     if (lead.source && lead.source.startsWith("camp-")) {
       const campaign = await client.hgetall(`campaign:${lead.source}`) as unknown as Campaign;
@@ -316,9 +340,53 @@ export async function getLeads(): Promise<ContactLead[]> {
   return allLeads.flat().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-// ============================================================
-// Legacy compatibility
-// ============================================================
+// ─── Tenant Tracking Helpers ───────────────────────────────────────────
+
+const TRACKING_THRESHOLD_DAYS = 7;
+
+export function getTenantTrackingStatus(tenant: {
+  sentAt?: string;
+  lastLeadAt?: string;
+  status?: TenantTrackingStatus;
+}): {
+  computedStatus: TenantTrackingStatus;
+  daysSinceSent: number;
+  daysSinceLead: number;
+  isOverdue: boolean;
+} {
+  const { status: manualStatus, sentAt, lastLeadAt } = tenant;
+
+  // Manual overrides take precedence
+  if (manualStatus === "disabled") {
+    return { computedStatus: "disabled", daysSinceSent: 0, daysSinceLead: 0, isOverdue: false };
+  }
+  if (manualStatus === "dormant") {
+    return { computedStatus: "dormant", daysSinceSent: 0, daysSinceLead: 0, isOverdue: false };
+  }
+
+  if (!sentAt) {
+    return { computedStatus: "idle", daysSinceSent: 0, daysSinceLead: 0, isOverdue: false };
+  }
+
+  const now = Date.now();
+  const sentMs = new Date(sentAt).getTime();
+  const daysSinceSent = Math.floor((now - sentMs) / (1000 * 60 * 60 * 24));
+
+  const daysSinceLead = lastLeadAt
+    ? Math.floor((now - new Date(lastLeadAt).getTime()) / (1000 * 60 * 60 * 24))
+    : daysSinceSent;
+
+  const isOverdue = daysSinceLead >= TRACKING_THRESHOLD_DAYS;
+
+  return {
+    computedStatus: isOverdue ? "followup" : "active",
+    daysSinceSent,
+    daysSinceLead,
+    isOverdue,
+  };
+}
+
+// ─── Legacy compatibility ─────────────────────────────────────────────
 
 export { storeLead as storeLegacyLead, getLeads as getLegacyLeads };
 
