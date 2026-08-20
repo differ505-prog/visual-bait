@@ -1,12 +1,13 @@
 import { ReactNode } from "react";
 import Link from "next/link";
-import { Home, Users, Megaphone, Settings } from "lucide-react";
+import { Home, Users, Megaphone, Settings, MessageSquare } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const nav = [
     { href: "/admin", label: "民宿管理", icon: Home },
     { href: "/admin/leads", label: "客戶名單", icon: Users },
     { href: "/admin/campaigns", label: "廣告活動", icon: Megaphone },
+    { href: "/admin/messages", label: "罐頭訊息", icon: MessageSquare },
   ];
 
   return (
