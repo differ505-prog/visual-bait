@@ -175,7 +175,6 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
-        scale: 2,
       });
       const link = document.createElement("a");
       link.download = `${selected.slug}-${Date.now()}.png`;
@@ -199,7 +198,6 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
-        scale: 2,
       });
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("blob failed"))), "image/png");
@@ -410,6 +408,8 @@ export default function MessagesPage() {
                     top: 0,
                     width: "375px",
                     backgroundColor: selected.primaryColor ? `${selected.primaryColor}08` : "#f9f7f4",
+                    transform: "scale(2)",
+                    transformOrigin: "top left",
                   }}
                 >
                   <div
@@ -453,7 +453,7 @@ export default function MessagesPage() {
                         width: "100%",
                         height: 160,
                         borderRadius: 10,
-                        background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, ${selected.secondaryColor || "#c4a882"}44)`,
+                        background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)`,
                         marginBottom: 16,
                         display: "flex",
                         alignItems: "center",
