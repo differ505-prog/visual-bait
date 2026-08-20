@@ -10,7 +10,7 @@ export function SectionStory() {
   const design = useDesignDials();
 
   const story = {
-    eyebrow: brand?.story?.eyebrow || brandConfig.story.eyebrow,
+    eyebrow: brand?.story?.eyebrow || `關於${brand?.brandName || brandConfig.brandName}`,
     headline: brand?.story?.headline || brandConfig.story.headline,
     imageUrl: brand?.story?.imageUrl || brandConfig.story.imageUrl,
   };

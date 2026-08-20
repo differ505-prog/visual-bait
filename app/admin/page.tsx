@@ -586,7 +586,7 @@ export default function AdminPage() {
                   品牌故事
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="小標題" value={form.storyEyebrow} onChange={setField("storyEyebrow")} placeholder="關於晴境莊" />
+                  <Field label="小標題" value={form.storyEyebrow} onChange={setField("storyEyebrow")} placeholder={`關於${form.brandName || "晴境莊"}`} />
                   <Field label="大標題" value={form.storyHeadline} onChange={setField("storyHeadline")} placeholder="把在城市裡丟掉的，安靜還給你" />
                   <div className="col-span-2">
                     <ImageUploader
