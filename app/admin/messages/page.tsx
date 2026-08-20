@@ -41,6 +41,7 @@ function renderTemplate(template: string, tenant: TenantConfig): string {
   out = out.replace(/\{\{line\}\}/g, tenant.line ?? "");
   out = out.replace(/\{\{email\}\}/g, tenant.email ?? "");
   out = out.replace(/\{\{url\}\}/g, buildUrl(tenant.slug));
+  out = out.replace(/\{\{id\}\}/g, tenant.slug);
 
   out = out.replace(/\{%\s*if\s+(\w+)\s*%\}([\s\S]*?)\{%\s*endif\s*%\}/g, (_, field, content) => {
     const val = (tenant as unknown as Record<string, string>)[field];
@@ -57,6 +58,7 @@ const VARIABLES = [
   { token: "{{line}}", label: "LINE" },
   { token: "{{email}}", label: "Email" },
   { token: "{{url}}", label: "頁面網址" },
+  { token: "{{id}}", label: "民宿 ID (網址後綴)" },
 ];
 
 export default function MessagesPage() {
@@ -448,22 +450,36 @@ export default function MessagesPage() {
                     </div>
 
                     {/* Hero image placeholder */}
-                    <div
-                      style={{
-                        width: "100%",
-                        height: 160,
-                        borderRadius: 10,
-                        background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)`,
-                        marginBottom: 16,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <span style={{ color: selected.primaryColor || "#8B7355", fontSize: 13, opacity: 0.6 }}>
-                        示意圖
-                      </span>
-                    </div>
+                    {selected.heroImageUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: 160,
+                          borderRadius: 10,
+                          backgroundImage: `url(${selected.heroImageUrl})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          marginBottom: 16,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: 160,
+                          borderRadius: 10,
+                          background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)`,
+                          marginBottom: 16,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <span style={{ color: selected.primaryColor || "#8B7355", fontSize: 13, opacity: 0.6 }}>
+                          示意圖
+                        </span>
+                      </div>
+                    )}
 
                     {/* Slogan */}
                     {selected.slogan && (
