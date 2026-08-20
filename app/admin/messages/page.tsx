@@ -409,118 +409,70 @@ export default function MessagesPage() {
                     left: "-9999px",
                     top: 0,
                     width: "375px",
-                    backgroundColor: selected.primaryColor ? `${selected.primaryColor}08` : "#f9f7f4",
+                    height: "812px",
+                    backgroundColor: "#fff",
                     transform: "scale(2)",
                     transformOrigin: "top left",
+                    fontFamily: "system-ui, sans-serif",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    boxShadow: "0 0 40px rgba(0,0,0,0.1)",
                   }}
                 >
-                  <div
-                    style={{
-                      background: "white",
-                      borderRadius: 12,
-                      padding: "24px 20px",
-                      margin: "16px",
-                      boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-                      fontFamily: "system-ui, sans-serif",
-                    }}
-                  >
-                    {/* Header */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                      <div
-                        style={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: "50%",
-                          background: selected.primaryColor || "#8B7355",
-                          color: "white",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 18,
-                          fontWeight: 700,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {selected.brandName.charAt(0)}
-                      </div>
-                      <div>
-                        <p style={{ fontWeight: 700, fontSize: 15, color: "#111" }}>{selected.brandName}</p>
-                        <p style={{ fontSize: 12, color: "#999" }}>築時數位精選民宿</p>
-                      </div>
-                    </div>
+                  {/* Fake Safari Address Bar */}
+                  <div style={{ background: "#f8f8f8", borderBottom: "1px solid #e0e0e0", padding: "12px 16px 8px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                     <div style={{ width: "100%", background: "#e8e8e8", borderRadius: 8, padding: "8px", textAlign: "center", fontSize: 13, color: "#333", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                        <span style={{ fontSize: 11, color: "#888" }}>🔒</span>
+                        <span>visual-bait.vercel.app/{selected.slug}</span>
+                     </div>
+                  </div>
 
-                    {/* Hero image placeholder */}
+                  {/* Webpage Header */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "white", borderBottom: "1px solid #f0f0f0" }}>
+                    <div style={{ fontWeight: 800, fontSize: 18, color: selected.primaryColor || "#333", letterSpacing: "1px" }}>
+                      {selected.brandName}
+                    </div>
+                    <div style={{ width: 24, height: 2, background: "#333", position: "relative" }}>
+                       <div style={{ width: 24, height: 2, background: "#333", position: "absolute", top: -6 }} />
+                       <div style={{ width: 24, height: 2, background: "#333", position: "absolute", top: 6 }} />
+                    </div>
+                  </div>
+
+                  {/* Hero Image with Overlay */}
+                  <div style={{ position: "relative", width: "100%", height: "450px" }}>
                     {selected.heroImageUrl ? (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: 160,
-                          borderRadius: 10,
-                          backgroundImage: `url(${selected.heroImageUrl})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          marginBottom: 16,
-                        }}
-                      />
+                      <div style={{ width: "100%", height: "100%", backgroundImage: `url(${selected.heroImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }} />
                     ) : (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: 160,
-                          borderRadius: 10,
-                          background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)`,
-                          marginBottom: 16,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <span style={{ color: selected.primaryColor || "#8B7355", fontSize: 13, opacity: 0.6 }}>
-                          示意圖
-                        </span>
-                      </div>
+                      <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)` }} />
                     )}
-
+                    {/* Gradient overlay */}
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)" }} />
+                    
                     {/* Slogan */}
-                    {selected.slogan && (
-                      <p
-                        style={{
-                          fontSize: 14,
-                          color: selected.primaryColor || "#8B7355",
-                          fontWeight: 600,
-                          marginBottom: 10,
-                          fontStyle: "italic",
-                        }}
-                      >
-                        「{selected.slogan}」
-                      </p>
-                    )}
-
-                    {/* Brand intro */}
-                    <p style={{ fontSize: 13, color: "#444", lineHeight: 1.7, marginBottom: 14 }}>
-                      {selected.brandName}，值得被更多人看見的特色民宿。我們為您打造專屬的一頁式網站，
-                      提升品牌形象，讓客人更容易預訂住房。
-                    </p>
-
-                    {/* CTA */}
-                    <div
-                      style={{
-                        background: selected.primaryColor || "#8B7355",
-                        color: "white",
-                        borderRadius: 10,
-                        padding: "12px 16px",
-                        textAlign: "center",
-                        fontWeight: 600,
-                        fontSize: 14,
-                      }}
-                    >
-                      查看完整網站 →
+                    <div style={{ position: "absolute", bottom: 40, left: 24, right: 24 }}>
+                       {selected.slogan && (
+                          <h1 style={{ color: "white", fontSize: 28, fontWeight: 700, marginBottom: 12, lineHeight: 1.3, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
+                            {selected.slogan}
+                          </h1>
+                       )}
+                       <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 15, letterSpacing: "0.5px" }}>
+                         {selected.brandName}・為您準備的美好假期
+                       </p>
                     </div>
+                  </div>
 
-                    {/* Footer */}
-                    <p style={{ fontSize: 11, color: "#bbb", textAlign: "center", marginTop: 12 }}>
-                      由築時數位打造 · {buildUrl(selected.slug)}
-                    </p>
+                  {/* Content section */}
+                  <div style={{ padding: "40px 24px", background: "white", flex: 1 }}>
+                     <h2 style={{ fontSize: 20, fontWeight: 700, color: "#222", marginBottom: 16 }}>關於我們</h2>
+                     <div style={{ width: 40, height: 3, background: selected.primaryColor || "#8B7355", marginBottom: 20 }} />
+                     <p style={{ fontSize: 14, color: "#666", lineHeight: 1.8 }}>
+                       在{selected.brandName}，我們致力於為您打造一個舒適、放鬆的空間。無論是家庭旅遊或是好友相聚，這裡都是您的最佳選擇。
+                     </p>
+                     
+                     <div style={{ marginTop: 24, background: selected.primaryColor || "#8B7355", color: "white", padding: "14px", borderRadius: 8, textAlign: "center", fontWeight: 600 }}>
+                        立即預訂
+                     </div>
                   </div>
                 </div>
 
