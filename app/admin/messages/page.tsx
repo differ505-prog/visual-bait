@@ -177,7 +177,6 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
-        backgroundColor: "#ffffff",
       });
       const link = document.createElement("a");
       link.download = `${selected.slug}-${Date.now()}.png`;
@@ -201,7 +200,6 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
-        backgroundColor: "#ffffff",
       });
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("blob failed"))), "image/png");
