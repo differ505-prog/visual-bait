@@ -177,6 +177,8 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
+        scale: 2,
+        backgroundColor: "#ffffff",
       });
       const link = document.createElement("a");
       link.download = `${selected.slug}-${Date.now()}.png`;
@@ -200,6 +202,8 @@ export default function MessagesPage() {
       const canvas = await html2canvas(target, {
         useCORS: true,
         allowTaint: false,
+        scale: 2,
+        backgroundColor: "#ffffff",
       });
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("blob failed"))), "image/png");
@@ -411,64 +415,61 @@ export default function MessagesPage() {
                     width: "375px",
                     height: "812px",
                     backgroundColor: "#fff",
-                    transform: "scale(2)",
-                    transformOrigin: "top left",
                     fontFamily: "system-ui, sans-serif",
                     overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
-                    boxShadow: "0 0 40px rgba(0,0,0,0.1)",
+                    display: "block",
                   }}
                 >
                   {/* Fake Safari Address Bar */}
-                  <div style={{ background: "#f8f8f8", borderBottom: "1px solid #e0e0e0", padding: "12px 16px 8px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                     <div style={{ width: "100%", background: "#e8e8e8", borderRadius: 8, padding: "8px", textAlign: "center", fontSize: 13, color: "#333", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#888" }}>🔒</span>
+                  <div style={{ background: "#f8f8f8", borderBottom: "1px solid #e0e0e0", padding: "12px 16px 8px", textAlign: "center" }}>
+                     <div style={{ background: "#e8e8e8", borderRadius: 8, padding: "8px", fontSize: 13, color: "#333", display: "inline-block", width: "100%", boxSizing: "border-box" }}>
+                        <span style={{ fontSize: 11, color: "#888", marginRight: 6 }}>🔒</span>
                         <span>visual-bait.vercel.app/{selected.slug}</span>
                      </div>
                   </div>
 
                   {/* Webpage Header */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "white", borderBottom: "1px solid #f0f0f0" }}>
+                  <div style={{ padding: "16px 20px", background: "white", borderBottom: "1px solid #f0f0f0", position: "relative" }}>
                     <div style={{ fontWeight: 800, fontSize: 18, color: selected.primaryColor || "#333", letterSpacing: "1px" }}>
                       {selected.brandName}
                     </div>
-                    <div style={{ width: 24, height: 2, background: "#333", position: "relative" }}>
+                    <div style={{ width: 24, height: 2, background: "#333", position: "absolute", right: 20, top: 26 }}>
                        <div style={{ width: 24, height: 2, background: "#333", position: "absolute", top: -6 }} />
                        <div style={{ width: 24, height: 2, background: "#333", position: "absolute", top: 6 }} />
                     </div>
                   </div>
 
                   {/* Hero Image with Overlay */}
-                  <div style={{ position: "relative", width: "100%", height: "450px" }}>
+                  <div style={{ position: "relative", width: "375px", height: "450px", overflow: "hidden" }}>
                     {selected.heroImageUrl ? (
-                      <div style={{ width: "100%", height: "100%", backgroundImage: `url(${selected.heroImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={selected.heroImageUrl} crossOrigin="anonymous" style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "450px", objectFit: "cover", display: "block" }} alt="hero" />
                     ) : (
-                      <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)` }} />
+                      <div style={{ position: "absolute", top: 0, left: 0, width: "375px", height: "450px", background: `linear-gradient(135deg, ${selected.primaryColor || "#8B7355"}22, #c4a88244)` }} />
                     )}
                     {/* Gradient overlay */}
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)" }} />
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)" }} />
                     
                     {/* Slogan */}
-                    <div style={{ position: "absolute", bottom: 40, left: 24, right: 24 }}>
+                    <div style={{ position: "absolute", bottom: 40, left: 24, right: 24, zIndex: 10 }}>
                        {selected.slogan && (
-                          <h1 style={{ color: "white", fontSize: 28, fontWeight: 700, marginBottom: 12, lineHeight: 1.3, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
+                          <div style={{ color: "white", fontSize: 28, fontWeight: 700, marginBottom: 12, lineHeight: 1.3, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
                             {selected.slogan}
-                          </h1>
+                          </div>
                        )}
-                       <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 15, letterSpacing: "0.5px" }}>
+                       <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 15, letterSpacing: "0.5px" }}>
                          {selected.brandName}・為您準備的美好假期
-                       </p>
+                       </div>
                     </div>
                   </div>
 
                   {/* Content section */}
-                  <div style={{ padding: "40px 24px", background: "white", flex: 1 }}>
-                     <h2 style={{ fontSize: 20, fontWeight: 700, color: "#222", marginBottom: 16 }}>關於我們</h2>
+                  <div style={{ padding: "40px 24px", background: "white", height: "230px" }}>
+                     <div style={{ fontSize: 20, fontWeight: 700, color: "#222", marginBottom: 16 }}>關於我們</div>
                      <div style={{ width: 40, height: 3, background: selected.primaryColor || "#8B7355", marginBottom: 20 }} />
-                     <p style={{ fontSize: 14, color: "#666", lineHeight: 1.8 }}>
+                     <div style={{ fontSize: 14, color: "#666", lineHeight: 1.8 }}>
                        在{selected.brandName}，我們致力於為您打造一個舒適、放鬆的空間。無論是家庭旅遊或是好友相聚，這裡都是您的最佳選擇。
-                     </p>
+                     </div>
                      
                      <div style={{ marginTop: 24, background: selected.primaryColor || "#8B7355", color: "white", padding: "14px", borderRadius: 8, textAlign: "center", fontWeight: 600 }}>
                         立即預訂
